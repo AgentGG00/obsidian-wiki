@@ -6,7 +6,7 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 
 ## Zielgruppe & Nutzen
 
-- **DM (Niklas):** Inhalte in Obsidian schreiben, Sichtbarkeit per Frontmatter und Callouts steuern, Claude als Schreibassistent nutzen
+- **DM:** Inhalte in Obsidian schreiben, Sichtbarkeit per Frontmatter und Callouts steuern, Claude als Schreibassistent nutzen
 - **Spieler:** Kampagnen-Wiki im Browser lesen, anonym kommentieren
 
 ## Tech-Stack Entscheidung
@@ -61,7 +61,7 @@ Kein Frontmatter = standardmäßig `public`.
 
 ```markdown
 > [!hidden]
-> Dieser Text wird als schwarzer Balken dargestellt
+> Dieser Text wird als schwarzer Balken dargestellt [Keine Inhalte dahinter damit sich keiner Spoilern kann]
 
 > [!dm-only]
 > Dieser Text ist für Spieler komplett unsichtbar
@@ -78,7 +78,7 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 ## Projektstruktur (Repo)
 
 ```
-/var/www/dnd-wiki/
+/var/www/obsidian-wiki/
   ├── main.py
   ├── config.py
   ├── parser.py
@@ -97,8 +97,8 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 
 ## Deployment
 
-- Pfad auf VDS: `/var/www/dnd-wiki/`
-- systemd Service: `dnd-wiki.service`
+- Pfad auf VDS: `/var/www/obsidian-wiki/`
+- systemd Service: `obsidian-wiki.service`
 - FastAPI läuft auf `127.0.0.1:8090`
 - Apache vHosts: `horizon.framenode.net`, `isekai.framenode.net`, `xxxx.framenode.net`
 - Certbot SSL für alle drei Domains
@@ -121,7 +121,7 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 
 **UFW:** Ports 3301–3305 nur auf `tailscale0` erlaubt
 
-**Tailscale Hostname:** `vmd189134-1.tail61384f.ts.net`
+**Tailscale Hostname:** `xxxxxxxxxxxxxxxx`
 
 **Claude Desktop Config** (`%APPDATA%\Claude\claude_desktop_config.json`):
 ```json
@@ -129,14 +129,12 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
   "mcpServers": {
     "obsidian-horizon": {
       "command": "npx",
-      "args": ["mcp-remote", "http://vmd189134-1.tail61384f.ts.net:3301/mcp", "--allow-http"]
+      "args": ["mcp-remote", "http://xxxxxxxxxxxxxxxx/mcp", "--allow-http"]
     }
     // ... analog für alle 5 Vaults (Ports 3301-3305)
   }
 }
 ```
-
-**Dedizierter SSH-Key für MCP:** `~/.ssh/id_ed25519_claude_mcp` (nicht mehr aktiv genutzt, Key in authorized_keys vorhanden)
 
 ## Offene Entscheidungen
 
