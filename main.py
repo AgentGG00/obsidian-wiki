@@ -6,8 +6,10 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from pathlib import Path
 from config import VAULT_MAP, DEV_VAULT_PATH
+from comments import get_comments, init_db
 
 app = FastAPI()
+init_db()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
@@ -57,7 +59,7 @@ async def page(request: Request, slug: str):
         "request": request,
         "title": slug.replace("-", " ").title(),
         "content": page_data["content"],
-        "comments": []
+        "comments": get_comments(vault.name, slug)
     })
 
 @app.post("/comments/{slug}")
