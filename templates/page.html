@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<article>
+    <h1>{{ title }}</h1>
+    {{ content | safe }}
+</article>
+
+<section class="comments">
+    <h2>Kommentare</h2>
+    {% for comment in comments %}
+    <div class="comment">
+        <strong>{{ comment.author_name }}</strong>
+        <span>{{ comment.created_at }}</span>
+        <p>{{ comment.content }}</p>
+    </div>
+    {% endfor %}
+
+    <form id="comment-form">
+        <input type="text" id="author" placeholder="Dein Name" required>
+        <textarea id="content" placeholder="Kommentar" required></textarea>
+        <button type="submit">Absenden</button>
+    </form>
+</section>
+{% endblock %}
