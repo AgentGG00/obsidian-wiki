@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from config import VAULT_MAP, DEV_VAULT_PATH
 from comments import get_comments, init_db
+from parser import parse_page, get_visibility
 
 app = FastAPI()
 init_db()
@@ -30,15 +31,14 @@ async def index(request: Request):
     pages = []
 
     for file in vault_path.glob("*.md"):
+        if get_visibility(str(file)) == "dm-only":
+            continue
         pages.append({
             "slug": file.stem,
             "title": file.stem.replace("-", " ").title()
-    })
-    
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "pages": pages
-    })
+        })
+
+    return templates.TemplateResponse(request=request, name="index.html", context={"pages": pages})
 
 
 @app.get("/{slug}")
@@ -47,16 +47,11 @@ async def page(request: Request, slug: str):
     filepath = vault / f"{slug}.md"
 
     if not filepath.exists():
-        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+        return templates.TemplateResponse(request=request, name="404.html", status_code=404)
 
-    from parser import parse_page
     page_data = parse_page(str(filepath))
 
-    if page_data["visibility"] == "dm-only":
-        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
-
-    return templates.TemplateResponse("page.html", {
-        "request": request,
+    return templates.TemplateResponse(request=request, name="page.html", context={
         "title": slug.replace("-", " ").title(),
         "content": page_data["content"],
         "comments": get_comments(vault.name, slug)
@@ -80,4 +75,4 @@ async def post_comment(request: Request, slug: str, comment: CommentIn):
 
 @app.exception_handler(404)
 async def not_found(request: Request, exc: HTTPException):
-    return templates.TemplateResponse("404.html", {"request": request}, status_code=404)    
+    return templates.TemplateResponse(request=request, name="404.html", status_code=404)

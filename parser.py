@@ -41,3 +41,8 @@ def parse_page(filepath: str) -> dict:
             "content": content_html,
             "metadata": post.metadata
         }
+
+def get_visibility(filepath: str) -> str:
+    with open(filepath, "r", encoding="utf-8") as f:
+        post = frontmatter.load(f)
+    return post.get("visibility", "public")

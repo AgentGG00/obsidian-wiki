@@ -9,18 +9,17 @@ def get_connection():
 
 def init_db():
     conn = get_connection()
-    cursor = conn.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        vault TEXT NOT NULL,
-        page_slug TEXT NOT NULL,
-        author TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS comments ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "vault TEXT NOT NULL,"
+        "page_slug TEXT NOT NULL,"
+        "author_name TEXT NOT NULL,"
+        "content TEXT NOT NULL,"
+        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
     )
-    """)
     conn.commit()
-    conn.close()         
+    conn.close()
 
 def get_comments(vault: str, page_slug: str) -> list:
     conn = get_connection()
@@ -29,4 +28,4 @@ def get_comments(vault: str, page_slug: str) -> list:
         (vault, page_slug)
     ).fetchall()
     conn.close()
-    return [dict(row) for row in rows]         
+    return [dict(row) for row in rows]
