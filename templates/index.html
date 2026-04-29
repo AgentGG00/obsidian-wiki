@@ -3,10 +3,12 @@
 {% block title %}Startseite{% endblock %}
 
 {% block content %}
-<h2>Alle Seiten</h2>
-<ul>
-    {% for page in pages %}
-    <li><a href="/{{ page.slug }}">{{ page.title }}</a></li>
-    {% endfor %}
-</ul>
+<div class="page-list">
+    <h2>Alle Seiten</h2>
+    <ul>
+        {% for page in pages %}
+        <li><a href="/{{ page.slug }}">{{ page.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}
