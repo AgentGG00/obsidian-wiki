@@ -1,4 +1,4 @@
-# DnD Wiki – projekt-stand.md
+# Obsidian Wiki – projekt-stand.md
 
 ## Projektbeschreibung
 
