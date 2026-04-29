@@ -31,7 +31,7 @@ Browser (Spieler)
                     ├── config.py: Domain → Vault-Ordner Mapping
                     ├── parser.py: Markdown + Frontmatter + Callouts
                     ├── comments.py: SQLite Kommentare
-                    └── /data/nas/[vault]/ (Obsidian Vault Dateien)
+                    └── /data/nas/vaults/[vault]/ (Obsidian Vault Dateien)
 ```
 
 ### Host-Header-Routing
@@ -39,9 +39,9 @@ Browser (Spieler)
 Apache liest den `Host` Header und leitet alle drei Domains an dieselbe FastAPI-Instanz weiter. FastAPI mappt die Domain auf den richtigen Vault-Ordner:
 
 ```
-horizon.framenode.net   → /data/nas/horizon-dnd/
-isekai.framenode.net    → /data/nas/isekai-dnd/
-xxxx.framenode.net      → /data/nas/neue-langzeitkampagne/
+horizon.framenode.net   → /data/nas/vaults/horizon-dnd/
+isekai.framenode.net    → /data/nas/vaults/isekai-dnd/
+xxxx.framenode.net      → /data/nas/vaults/neue-langzeitkampagne/
 ```
 
 ## Sichtbarkeits-System
@@ -121,15 +121,13 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 
 **UFW:** Ports 3301–3305 nur auf `tailscale0` erlaubt
 
-**Tailscale Hostname:** `xxxxxxxxxxxxxxxx`
-
 **Claude Desktop Config** (`%APPDATA%\Claude\claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
     "obsidian-horizon": {
       "command": "npx",
-      "args": ["mcp-remote", "http://xxxxxxxxxxxxxxxx/mcp", "--allow-http"]
+      "args": ["mcp-remote", "http://[TAILSCALE-HOSTNAME]:3301/mcp", "--allow-http"]
     }
     // ... analog für alle 5 Vaults (Ports 3301-3305)
   }
@@ -141,3 +139,40 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 - [ ] Name der dritten Kampagne (aktuell: XXXX / `xxxx.framenode.net`)
 - [ ] Design/Theme der Wiki-Oberfläche (dark/light, Fantasy-Stil?)
 - [ ] Sollen Kommentare moderierbar sein (DM kann löschen)?
+
+## Checkliste
+
+### Setup
+- [x] GitHub Repo anlegen (obsidian-wiki, public, dev Branch)
+- [ ] VDS mit Git verknüpfen + Projektstruktur initialisieren
+
+### MCP Server
+- [x] Node.js 20 auf VDS installieren
+- [x] `@bitbonsai/mcpvault` installieren
+- [x] `mcp-proxy` (Python) installieren
+- [x] 5 systemd Services einrichten (Ports 3301–3305)
+- [x] UFW Regeln auf tailscale0
+- [x] Dedizierter SSH-Key für Claude Desktop
+- [x] Claude Desktop Config einrichten
+- [x] Verbindung getestet und funktioniert
+
+### Wiki-Webapp Backend
+- [ ] FastAPI Grundstruktur + config.py Domain-Mapping
+- [ ] Markdown Parser mit Frontmatter-Unterstützung
+- [ ] Callout-Parser (hidden, dm-only Logik)
+- [ ] Routing – Index, Einzelseite, 404
+- [ ] SQLite Kommentar-Modell + Endpunkte
+
+### Wiki-Webapp Frontend
+- [ ] base.html Grundlayout
+- [ ] index.html Übersichtsseite
+- [ ] page.html Einzelseite mit Callout-Rendering
+- [ ] Kommentarformular + Kommentarliste
+- [ ] style.css (Fantasy-Theme, responsive)
+- [ ] script.js (Kommentar absenden)
+
+### Deployment
+- [ ] systemd Service obsidian-wiki.service
+- [ ] Apache vHosts für alle drei Domains
+- [ ] Certbot SSL
+- [ ] Cloudflare DNS A-Records
