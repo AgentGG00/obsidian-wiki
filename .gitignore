@@ -9,7 +9,6 @@ tempCodeRunnerFile.py
 # Virtual Environment
 .venv
 venv/
-env/
 
 # Type Checker
 .mypy_cache/
@@ -17,7 +16,7 @@ env/
 
 # Tests
 .pytest_cache/
-tests/dev-vaults/
+tests/
 
 # Environment
 .env
@@ -25,7 +24,11 @@ tests/dev-vaults/
 
 # Database
 src/db/
-database.db
 
 # Node
 node_modules/
+
+# cspell
+.cspell.json
+package.json
+package-lock.json

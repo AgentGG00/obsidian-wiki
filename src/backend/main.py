@@ -5,15 +5,15 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from pathlib import Path
-from config import VAULT_MAP, DEV_VAULT_PATH
-from comments import get_comments, init_db
-from parser import parse_page, get_visibility
+from .config import VAULT_MAP, DEV_VAULT_PATH
+from .comments import get_comments, init_db
+from .parser import parse_page, get_visibility
 
 app = FastAPI()
 init_db()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="src/frontend/static"), name="static")
+templates = Jinja2Templates(directory="src/frontend/templates")
 
 def get_vault_path(request: Request) -> Path:
     host = request.headers.get("host", "").split(":")[0]
@@ -59,7 +59,7 @@ async def page(request: Request, slug: str):
 
 @app.post("/comments/{slug}")
 async def post_comment(request: Request, slug: str, comment: CommentIn):
-    from comments import get_connection
+    from .comments import get_connection
     vault = get_vault_path(request)
     vault_name = vault.name
 

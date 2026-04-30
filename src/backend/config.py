@@ -4,4 +4,4 @@ VAULT_MAP: dict[str, str] = {
     "xxxx.framenode.net": "/data/nas/vaults/xxxx-dnd",
 }
 
-DEV_VAULT_PATH: str = "./dev-vaults/horizon-dnd"
+DEV_VAULT_PATH: str = "./tests/dev-vaults/horizon-dnd"
