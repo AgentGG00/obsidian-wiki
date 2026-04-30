@@ -2,7 +2,7 @@
 
 [![Deploy](https://img.shields.io/github/actions/workflow/status/AgentGG00/obsidian-wiki/deploy.yml?label=deploy)](https://github.com/AgentGG00/obsidian-wiki/actions)
 [![Version](https://img.shields.io/github/v/release/AgentGG00/obsidian-wiki)](https://github.com/AgentGG00/obsidian-wiki/releases)
-[![Status](https://img.shields.io/badge/status-WIP-yellow)
+![Status](https://img.shields.io/badge/status-WIP-yellow)
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org)
 [![License](https://img.shields.io/github/license/AgentGG00/obsidian-wiki)](https://github.com/AgentGG00/obsidian-wiki/blob/main/LICENSE)
 
