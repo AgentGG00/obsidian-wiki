@@ -46,8 +46,8 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 - [x] GitHub Repo anlegen
 - [x] `.gitignore` anpassen
 - [x] `.env.example` erstellen
-- [ ] Repo-Struktur finalisieren (`src/backend/routers/`, `src/db/`)
-- [ ] VDS mit Git verknüpfen
+- [x] Repo-Struktur finalisieren (`src/backend/routers/`, `src/db/`)
+- [x] VDS mit Git verknüpfen
 
 ### Backend
 
@@ -56,11 +56,11 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 - [x] `parser.py` – Markdown + Frontmatter-Unterstützung
 - [x] `parser.py` – Callout-Logik (`hidden`, `dm-only`)
 - [x] `comments.py` – SQLite Modell + Basis-Endpunkte
-- [ ] `routers/pages.py` – Routing auslagern aus `main.py`
-- [ ] `comments.py` – Threading (max. 5 Ebenen, `parent_id`-Spalte)
-- [ ] `comments.py` – IP-Hashing (SHA-256, vor Speicherung)
-- [ ] `comments.py` – Autoren-Token (zufälliger UUID, mit Kommentar gespeichert)
-- [ ] `comments.py` – Bearbeiten/Löschen per Autoren-Token (nur wenn Kategorie-2-Cookie gesetzt)
+- [x] `routers/pages.py` – Routing auslagern aus `main.py`
+- [x] `comments.py` – Threading (max. 5 Ebenen, `parent_id`-Spalte)
+- [x] `comments.py` – IP-Hashing (SHA-256, vor Speicherung)
+- [x] `comments.py` – Autoren-Token (zufälliger UUID, mit Kommentar gespeichert)
+- [x] `comments.py` – Bearbeiten/Löschen per Autoren-Token (nur wenn Kategorie-2-Cookie gesetzt)
 - [ ] `admin/auth.py` – Tailscale-IP-Whitelist aus `.env`
 - [ ] `admin/auth.py` – Login-Route `/admin/login`, SHA-256 Passwort-Prüfung, Session-Cookie
 - [ ] `admin/auth.py` – Multi-Admin aus `.env` (Niklas: alle Vaults, Jana: `isekai-dnd`)

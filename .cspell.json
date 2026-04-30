@@ -1,5 +1,14 @@
-
 {
   "language": "en,de-de",
-  "ignorePaths": ["docs/**", ".gitignore"]
+  "ignorePaths": [
+    "docs/**",
+    ".gitignore"
+  ],
+  "words": [
+    "Autoren",
+    "autorisiert",
+    "Kein",
+    "lastrowid",
+    "Nicht"
+  ]
 }

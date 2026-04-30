@@ -1,4 +1,3 @@
-// Theme
 const themes = ["system", "light", "dark"];
 let currentTheme = localStorage.getItem("theme") || "system";
 
@@ -28,31 +27,21 @@ function updateToggleLabel() {
 
 applyTheme(currentTheme);
 
-document.addEventListener("DOMContentLoaded", () => {
-    updateToggleLabel();
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const toggleBtn = document.getElementById("theme-toggle");
-    if (toggleBtn) toggleBtn.addEventListener("click", cycleTheme);
+    const authorInput = document.getElementById("author");
+    const contentInput = document.getElementById("content");
+    const slug = window.location.pathname.replace("/", "");
 
-    // Kommentare
-    const form = document.getElementById("comment-form");
-    if (!form) return;
-
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const author = document.getElementById("author").value;
-        const content = document.getElementById("content").value;
-        const slug = window.location.pathname.replace("/", "");
-
-        const response = await fetch(`/comments/${slug}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ author_name: author, content: content }),
-        });
-
-        if (response.ok) {
-            location.reload();
-        }
+    const response = await fetch(`/comments/${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ author_name: authorInput.value, content: contentInput.value }),
     });
+
+    if (response.ok) {
+        authorInput.value = "";
+        contentInput.value = "";
+    }
 });
