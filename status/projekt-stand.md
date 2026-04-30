@@ -19,7 +19,7 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 | Markdown-Parsing | python-markdown + custom Parser | Frontmatter via python-frontmatter, Callout-Logik selbst gebaut |
 | Webserver | Apache Reverse Proxy | Bereits vorhanden auf VDS, Host-Header-Routing auf FastAPI |
 | Prozessmanager | systemd | Kein Docker für diese App, direkt auf VDS |
-| Versionskontrolle | GitHub (1 Repo) | Ein Repo für alle drei Wikis |
+| Versionskontrolle | GitHub (1 Repo, framenode Organisation) | Ein Repo für alle drei Wikis |
 
 ## Architekturübersicht
 
@@ -61,7 +61,7 @@ Kein Frontmatter = standardmäßig `public`.
 
 ```markdown
 > [!hidden]
-> Dieser Text wird als schwarzer Balken dargestellt [Keine Inhalte dahinter damit sich keiner Spoilern kann]
+> Dieser Text wird als schwarzer Balken dargestellt
 
 > [!dm-only]
 > Dieser Text ist für Spieler komplett unsichtbar
@@ -102,6 +102,7 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 - FastAPI läuft auf `127.0.0.1:8090`
 - Apache vHosts: `horizon.framenode.net`, `isekai.framenode.net`, `xxxx.framenode.net`
 - Certbot SSL für alle drei Domains
+- GitHub Actions Deploy bei Release (`published`)
 
 ## MCP Server ✅ FERTIG
 
@@ -121,29 +122,21 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 
 **UFW:** Ports 3301–3305 nur auf `tailscale0` erlaubt
 
-**Claude Desktop Config** (`%APPDATA%\Claude\claude_desktop_config.json`):
-```json
-{
-  "mcpServers": {
-    "obsidian-horizon": {
-      "command": "npx",
-      "args": ["mcp-remote", "http://[TAILSCALE-HOSTNAME]:3301/mcp", "--allow-http"]
-    }
-    // ... analog für alle 5 Vaults (Ports 3301-3305)
-  }
-}
-```
+## GitHub Organisation
+
+- Organisation: `framenode` (personal account)
+- Organisation Secrets: `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY`
+- Deployment User auf VDS: `github` (minimale Rechte, nur `sudo systemctl restart *`)
 
 ## Offene Entscheidungen
 
 - [ ] Name der dritten Kampagne (aktuell: XXXX / `xxxx.framenode.net`)
-- [ ] Design/Theme der Wiki-Oberfläche (dark/light, Fantasy-Stil?)
 - [ ] Sollen Kommentare moderierbar sein (DM kann löschen)?
 
 ## Checkliste
 
 ### Setup
-- [x] GitHub Repo anlegen (obsidian-wiki, public, dev Branch)
+- [x] GitHub Repo anlegen (obsidian-wiki, framenode Organisation, dev Branch)
 - [ ] VDS mit Git verknüpfen + Projektstruktur initialisieren
 
 ### MCP Server
@@ -157,21 +150,26 @@ Normaler Text außerhalb von Callouts ist immer öffentlich.
 - [x] Verbindung getestet und funktioniert
 
 ### Wiki-Webapp Backend
-- [ ] FastAPI Grundstruktur + config.py Domain-Mapping
-- [ ] Markdown Parser mit Frontmatter-Unterstützung
-- [ ] Callout-Parser (hidden, dm-only Logik)
-- [ ] Routing – Index, Einzelseite, 404
-- [ ] SQLite Kommentar-Modell + Endpunkte
+- [x] FastAPI Grundstruktur + config.py Domain-Mapping
+- [x] Markdown Parser mit Frontmatter-Unterstützung
+- [x] Callout-Parser (hidden, dm-only Logik)
+- [x] Routing – Index, Einzelseite, 404
+- [x] SQLite Kommentar-Modell + Endpunkte
+- [x] dm-only Filter im Index (Seiten nicht sichtbar für Spieler)
 
 ### Wiki-Webapp Frontend
-- [ ] base.html Grundlayout
-- [ ] index.html Übersichtsseite
-- [ ] page.html Einzelseite mit Callout-Rendering
-- [ ] Kommentarformular + Kommentarliste
-- [ ] style.css (Fantasy-Theme, responsive)
-- [ ] script.js (Kommentar absenden)
+- [x] base.html Grundlayout
+- [x] index.html Übersichtsseite
+- [x] page.html Einzelseite mit Callout-Rendering
+- [x] Kommentarformular + Kommentarliste
+- [x] style.css (Fantasy-Theme, dark/light/system, responsive)
+- [x] script.js (Theme Cycle, Kommentar absenden)
 
 ### Deployment
+- [x] GitHub Actions deploy.yml (bei Release)
+- [x] Organisation Secrets angelegt
+- [x] Deployment User `github` auf VDS eingerichtet
+- [ ] install.yml – Erstinstallation via GitHub Action
 - [ ] systemd Service obsidian-wiki.service
 - [ ] Apache vHosts für alle drei Domains
 - [ ] Certbot SSL
