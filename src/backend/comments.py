@@ -1,0 +1,32 @@
+import sqlite3
+import os
+
+DB_PATH = os.environ["DB_PATH"]
+
+def get_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    conn = get_connection()
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS comments ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "vault TEXT NOT NULL,"
+        "page_slug TEXT NOT NULL,"
+        "author_name TEXT NOT NULL,"
+        "content TEXT NOT NULL,"
+        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+    )
+    conn.commit()
+    conn.close()
+
+def get_comments(vault: str, page_slug: str) -> list:
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM comments WHERE vault = ? AND page_slug = ? ORDER BY created_at ASC",
+        (vault, page_slug)
+    ).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
