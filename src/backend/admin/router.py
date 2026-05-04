@@ -13,6 +13,9 @@ class LoginIn(BaseModel):
     password: str
     name: str
 
+class CommentEditIn(BaseModel):
+    content: str
+
 
 @router.get("/login")
 async def login_page(request: Request):
@@ -84,4 +87,18 @@ async def admin_delete_comment(request: Request, comment_id: int):
     conn.commit()
     conn.close()
 
+    return JSONResponse({"ok": True})
+
+@router.patch("/comments/{comment_id}")
+async def admin_edit_comment(request: Request, comment_id: int, body: CommentEditIn):
+    if not is_tailscale(request) or not verify_session(request):
+        return JSONResponse({"error": "Nicht erlaubt"}, status_code=403)
+
+    conn = get_connection()
+    conn.execute(
+        "UPDATE comments SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (body.content, comment_id)
+    )
+    conn.commit()
+    conn.close()
     return JSONResponse({"ok": True})

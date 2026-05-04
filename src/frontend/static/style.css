@@ -720,6 +720,10 @@ footer a:hover {
     margin-bottom: var(--space-lg);
 }
 
+#comment-form-wrapper input[type="text"] {
+    margin-bottom: var(--space-sm);
+}
+
 
 /* ============================================================
    FORMULARE
@@ -1035,4 +1039,146 @@ select:focus {
     :root {
         --max-width: 900px;
     }
+}
+
+/* ============================================================
+   KOMMENTAR-MENÜ (Drei-Punkte)
+   ============================================================ */
+
+.comment-header {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-meta {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.comment-menu {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.menu-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 var(--space-xs);
+    border-radius: var(--radius);
+    transition: color var(--transition);
+}
+
+.menu-trigger:hover {
+    color: var(--accent);
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-width: 140px;
+    z-index: 50;
+    box-shadow: 0 4px 12px var(--shadow);
+    overflow: hidden;
+}
+
+.menu-dropdown.open {
+    display: block;
+}
+
+.menu-item {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text);
+    transition: background-color var(--transition), color var(--transition);
+}
+
+.menu-item:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--accent);
+}
+
+.menu-item.delete-own-btn {
+    border-top: 1px solid var(--border);
+    color: #a02020;
+}
+
+.menu-item.delete-own-btn:hover {
+    background-color: #a02020;
+    color: #ffffff;
+}
+
+
+/* ============================================================
+   KOMMENTAR – Inline-Edit & Reply-Form
+   ============================================================ */
+
+.comment-edit-form,
+.reply-form {
+    display: none;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.comment-edit-form.open,
+.reply-form.open {
+    display: flex;
+}
+
+/* ============================================================
+   CONFIRM POPOUT
+   ============================================================ */
+
+.confirm-popout {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px var(--shadow);
+    padding: var(--space-lg);
+    z-index: 200;
+    min-width: 260px;
+    max-width: 360px;
+    width: 90%;
+}
+
+.confirm-popout p {
+    margin: 0 0 var(--space-md) 0;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+}
+
+.confirm-popout .form-actions {
+    justify-content: flex-end;
+}
+
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+    backdrop-filter: blur(2px);
 }

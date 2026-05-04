@@ -13,9 +13,19 @@
                 <span class="comment-author">{{ comment.author_name }}</span>
                 <span class="comment-date">{{ comment.vault }} / {{ comment.page_slug }}</span>
                 <span class="comment-date">{{ comment.created_at }}</span>
-                <button class="btn btn-danger delete-btn" data-id="{{ comment.id }}">Löschen</button>
+                <div style="display:flex; gap: var(--space-sm);">
+                    <button class="btn admin-edit-btn" data-id="{{ comment.id }}">Bearbeiten</button>
+                    <button class="btn btn-danger delete-btn" data-id="{{ comment.id }}">Löschen</button>
+                </div>
             </div>
-            <div class="comment-body">{{ comment.content }}</div>
+            <div class="comment-body" id="body-{{ comment.id }}">{{ comment.content }}</div>
+            <div class="comment-edit-form" id="edit-{{ comment.id }}">
+                <textarea class="edit-content">{{ comment.content }}</textarea>
+                <div class="form-actions">
+                    <button class="btn btn-primary admin-save-edit-btn" data-id="{{ comment.id }}">Speichern</button>
+                    <button class="btn admin-cancel-edit-btn" data-id="{{ comment.id }}">Abbrechen</button>
+                </div>
+            </div>
         </div>
         {% endfor %}
     {% else %}
