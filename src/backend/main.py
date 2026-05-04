@@ -8,8 +8,10 @@ from fastapi.exceptions import HTTPException
 from .dependencies import templates
 from .comments import init_db
 from .routers import pages
+from .admin.router import router as admin_router
 
 app = FastAPI()
+app.include_router(admin_router)
 init_db()
 
 app.mount("/static", StaticFiles(directory="src/frontend/static"), name="static")
@@ -18,3 +20,4 @@ app.include_router(pages.router)
 @app.exception_handler(404)
 async def not_found(request: Request, exc: HTTPException):
     return templates.TemplateResponse(request=request, name="404.html", status_code=404)
+
