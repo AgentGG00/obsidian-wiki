@@ -2,22 +2,28 @@ import os
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
-from ..dependencies import templates, get_vault_path
+from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
 from ..comments import get_connection
-from .auth import is_tailscale, verify_admin, verify_session, hash_password
+from .auth import is_tailscale, verify_admin, verify_session
 
 router = APIRouter(prefix="/admin")
 
 
 class LoginIn(BaseModel):
     password: str
+    name: str
 
 
 @router.get("/login")
 async def login_page(request: Request):
     if not is_tailscale(request):
         return JSONResponse({"error": "Nicht erlaubt"}, status_code=403)
-    return templates.TemplateResponse(request=request, name="admin/login.html", context={})
+    return templates.TemplateResponse(request=request, name="admin/login.html", context={
+        "vault_name": get_vault_theme(get_vault_path(request).name),
+        "vault_icon": get_vault_icon(get_vault_path(request).name),
+        "campaign_name": get_vault_path(request).name,
+        "admins": [os.getenv(f"ADMIN_{i}_NAME") for i in range(1, 10) if os.getenv(f"ADMIN_{i}_NAME")]
+    })
 
 
 @router.post("/login")
@@ -26,10 +32,11 @@ async def login(request: Request, credentials: LoginIn):
         return JSONResponse({"error": "Nicht erlaubt"}, status_code=403)
 
     vault = get_vault_path(request).name
-    admin = verify_admin(credentials.password, vault)
+    admin, error = verify_admin(credentials.password, vault, credentials.name)
 
     if not admin:
-        return JSONResponse({"error": "Ungültige Zugangsdaten"}, status_code=401)
+        msg = "Kein Zugriff auf diese Kampagne." if error == "wrong_vault" else "Ungültiges Passwort."
+        return JSONResponse({"error": msg}, status_code=401)
 
     response = RedirectResponse(url="/admin", status_code=302)
     response.set_cookie(
@@ -37,7 +44,7 @@ async def login(request: Request, credentials: LoginIn):
         os.getenv("ADMIN_SESSION_SECRET"),
         httponly=True,
         samesite="strict",
-        max_age=60 * 60 * 8
+        max_age=60 * 30
     )
     response.set_cookie("admin_vault", vault, httponly=True, samesite="strict")
     return response
@@ -60,7 +67,10 @@ async def dashboard(request: Request):
 
     return templates.TemplateResponse(request=request, name="admin/dashboard.html", context={
         "comments": [dict(c) for c in comments],
-        "vault": vault
+        "vault": vault,
+        "vault_name": get_vault_theme(get_vault_path(request).name),
+        "vault_icon": get_vault_icon(get_vault_path(request).name),
+        "campaign_name": get_vault_path(request).name,
     })
 
 

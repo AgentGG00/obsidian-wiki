@@ -10,28 +10,16 @@
         {% for comment in comments %}
         <div class="admin-comment" id="comment-{{ comment.id }}">
             <div class="comment-header">
-                <strong>{{ comment.author_name }}</strong>
-                <span>{{ comment.vault }} / {{ comment.page_slug }}</span>
-                <span>{{ comment.created_at }}</span>
-                <button class="delete-btn" data-id="{{ comment.id }}">Löschen</button>
+                <span class="comment-author">{{ comment.author_name }}</span>
+                <span class="comment-date">{{ comment.vault }} / {{ comment.page_slug }}</span>
+                <span class="comment-date">{{ comment.created_at }}</span>
+                <button class="btn btn-danger delete-btn" data-id="{{ comment.id }}">Löschen</button>
             </div>
-            <p>{{ comment.content }}</p>
+            <div class="comment-body">{{ comment.content }}</div>
         </div>
         {% endfor %}
     {% else %}
         <p class="no-comments">Keine Kommentare vorhanden.</p>
     {% endif %}
 </div>
-
-<script>
-document.querySelectorAll(".delete-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        const response = await fetch(`/admin/comments/${id}`, { method: "DELETE" });
-        if (response.ok) {
-            document.getElementById(`comment-${id}`).remove();
-        }
-    });
-});
-</script>
 {% endblock %}

@@ -26,13 +26,17 @@ def get_admins() -> list:
         i += 1
     return admins
 
-def verify_admin(password: str, vault: str) -> dict | None:
+def verify_admin(password: str, vault: str, name: str = None) -> tuple[dict | None, str | None]:
     hashed = hash_password(password)
     for admin in get_admins():
-        if admin["password_hash"] == hashed:
-            if admin["vault"] == "*" or admin["vault"] == vault:
-                return admin
-    return None
+        if admin["name"] != name:
+            continue
+        if admin["password_hash"] != hashed:
+            return None, "wrong_password"
+        if admin["vault"] != "*" and admin["vault"] != vault:
+            return None, "wrong_vault"
+        return admin, None
+    return None, "wrong_password"
 
 def verify_session(request: Request) -> bool:
     return request.cookies.get("admin_session") == os.getenv("ADMIN_SESSION_SECRET")
