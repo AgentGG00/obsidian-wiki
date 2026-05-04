@@ -1,12 +1,8 @@
 import sqlite3
 import os
-import hashlib
 import uuid
 
 DB_PATH = os.getenv("DB_PATH", "src/db/database.db")
-
-def hash_ip(ip: str) -> str:
-    return hashlib.sha256(ip.encode()).hexdigest()
 
 def generate_author_token() -> str:
     return str(uuid.uuid4())
@@ -25,7 +21,6 @@ def init_db():
         "page_slug TEXT NOT NULL,"
         "author_name TEXT NOT NULL,"
         "author_token TEXT NOT NULL,"
-        "ip_hash TEXT,"
         "parent_id INTEGER REFERENCES comments(id) ON DELETE CASCADE,"
         "depth INTEGER NOT NULL DEFAULT 0,"
         "updated_at TIMESTAMP,"
@@ -44,9 +39,8 @@ def get_comments(vault: str, page_slug: str) -> list:
     conn.close()
     return [dict(row) for row in rows]
 
-def add_comment(vault: str, page_slug: str, author_name: str, content: str, ip: str, author_token: str, parent_id: int | None = None) -> dict:
+def add_comment(vault: str, page_slug: str, author_name: str, content: str, author_token: str, parent_id: int | None = None) -> dict:
     depth = 0
-
     conn = get_connection()
 
     if parent_id is not None:
@@ -54,12 +48,12 @@ def add_comment(vault: str, page_slug: str, author_name: str, content: str, ip: 
             "SELECT depth FROM comments WHERE id = ?", (parent_id,)
         ).fetchone()
         if parent:
-            depth = min(parent["depth"] + 1, 5)
+            depth = min(parent["depth"] + 1, 3)
 
     cursor = conn.execute(
-        "INSERT INTO comments (vault, page_slug, author_name, content, ip_hash, author_token, parent_id, depth) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (vault, page_slug, author_name, content, hash_ip(ip), author_token, parent_id, depth)
+        "INSERT INTO comments (vault, page_slug, author_name, content, author_token, parent_id, depth) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (vault, page_slug, author_name, content, author_token, parent_id, depth)
     )
     conn.commit()
 

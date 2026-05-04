@@ -15,55 +15,145 @@
 
     {% if comments %}
         {% for comment in comments %}
-        {% if comment.parent_id is none %}
         <div class="comment-thread">
+
+            {# Level 0 #}
             <div class="comment" id="comment-{{ comment.id }}">
                 <div class="comment-header">
-                    <span class="comment-author">{{ comment.author_name }}</span>
-                    <span class="comment-date">{{ comment.created_at }}</span>
-                    {% if comment.updated_at %}
-                    <span class="comment-edited">(bearbeitet)</span>
+                    <div class="comment-meta">
+                        <span class="comment-author">{{ comment.author_name }}</span>
+                        <span class="comment-date">
+                            {% if comment.updated_at %}{{ comment.updated_at }} <em class="comment-edited">bearbeitet</em>
+                            {% else %}{{ comment.created_at }}{% endif %}
+                        </span>
+                    </div>
+                    {% if comment.id in owned_ids %}
+                    <div class="comment-menu">
+                        <button class="menu-trigger" data-id="{{ comment.id }}">⋮</button>
+                        <div class="menu-dropdown" id="menu-{{ comment.id }}">
+                            <button class="menu-item edit-btn" data-id="{{ comment.id }}">Bearbeiten</button>
+                            <button class="menu-item delete-own-btn" data-id="{{ comment.id }}">Löschen</button>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
-                <div class="comment-body">{{ comment.content }}</div>
+                <div class="comment-body" id="body-{{ comment.id }}">{{ comment.content }}</div>
+                <div class="comment-edit-form" id="edit-{{ comment.id }}">
+                    <textarea class="edit-content">{{ comment.content }}</textarea>
+                    <div class="form-actions">
+                        <button class="btn btn-primary save-edit-btn" data-id="{{ comment.id }}">Speichern</button>
+                        <button class="btn cancel-edit-btn" data-id="{{ comment.id }}">Abbrechen</button>
+                    </div>
+                </div>
                 <div class="comment-actions">
                     <button class="reply-btn" data-id="{{ comment.id }}">Antworten</button>
                 </div>
+                <div class="reply-form" id="reply-form-{{ comment.id }}">
+                    <input type="text" class="reply-author" placeholder="Dein Name">
+                    <textarea class="reply-content" placeholder="Antwort schreiben..."></textarea>
+                    <div class="form-actions">
+                        <button class="btn btn-primary submit-reply-btn" data-id="{{ comment.id }}">Absenden</button>
+                        <button class="btn cancel-reply-form-btn" data-id="{{ comment.id }}">Abbrechen</button>
+                    </div>
+                </div>
             </div>
-            <div class="comment-replies" id="replies-{{ comment.id }}">
-                {% for reply in comments %}
-                {% if reply.parent_id == comment.id %}
+
+            {# Level 1 #}
+            {% if comment.replies %}
+            <div class="comment-replies">
+                {% for reply in comment.replies %}
                 <div class="comment" id="comment-{{ reply.id }}">
                     <div class="comment-header">
-                        <span class="comment-author">{{ reply.author_name }}</span>
-                        <span class="comment-date">{{ reply.created_at }}</span>
-                        {% if reply.updated_at %}
-                        <span class="comment-edited">(bearbeitet)</span>
+                        <div class="comment-meta">
+                            <span class="comment-author">{{ reply.author_name }}</span>
+                            <span class="comment-date">
+                                {% if reply.updated_at %}{{ reply.updated_at }} <em class="comment-edited">bearbeitet</em>
+                                {% else %}{{ reply.created_at }}{% endif %}
+                            </span>
+                        </div>
+                        {% if reply.id in owned_ids %}
+                        <div class="comment-menu">
+                            <button class="menu-trigger" data-id="{{ reply.id }}">⋮</button>
+                            <div class="menu-dropdown" id="menu-{{ reply.id }}">
+                                <button class="menu-item edit-btn" data-id="{{ reply.id }}">Bearbeiten</button>
+                                <button class="menu-item delete-own-btn" data-id="{{ reply.id }}">Löschen</button>
+                            </div>
+                        </div>
                         {% endif %}
                     </div>
-                    <div class="comment-body">{{ reply.content }}</div>
+                    <div class="comment-body" id="body-{{ reply.id }}">{{ reply.content }}</div>
+                    <div class="comment-edit-form" id="edit-{{ reply.id }}">
+                        <textarea class="edit-content">{{ reply.content }}</textarea>
+                        <div class="form-actions">
+                            <button class="btn btn-primary save-edit-btn" data-id="{{ reply.id }}">Speichern</button>
+                            <button class="btn cancel-edit-btn" data-id="{{ reply.id }}">Abbrechen</button>
+                        </div>
+                    </div>
                     <div class="comment-actions">
                         <button class="reply-btn" data-id="{{ reply.id }}">Antworten</button>
                     </div>
+                    <div class="reply-form" id="reply-form-{{ reply.id }}">
+                        <input type="text" class="reply-author" placeholder="Dein Name">
+                        <textarea class="reply-content" placeholder="Antwort schreiben..."></textarea>
+                        <div class="form-actions">
+                            <button class="btn btn-primary submit-reply-btn" data-id="{{ reply.id }}">Absenden</button>
+                            <button class="btn cancel-reply-form-btn" data-id="{{ reply.id }}">Abbrechen</button>
+                        </div>
+                    </div>
+                </div>
+
+                {# Level 2 – kein Antworten-Button #}
+                {% if reply.replies %}
+                <div class="comment-replies">
+                    {% for reply2 in reply.replies %}
+                    <div class="comment" id="comment-{{ reply2.id }}">
+                        <div class="comment-header">
+                            <div class="comment-meta">
+                                <span class="comment-author">{{ reply2.author_name }}</span>
+                                <span class="comment-date">
+                                    {% if reply2.updated_at %}{{ reply2.updated_at }} <em class="comment-edited">bearbeitet</em>
+                                    {% else %}{{ reply2.created_at }}{% endif %}
+                                </span>
+                            </div>
+                            {% if reply2.id in owned_ids %}
+                            <div class="comment-menu">
+                                <button class="menu-trigger" data-id="{{ reply2.id }}">⋮</button>
+                                <div class="menu-dropdown" id="menu-{{ reply2.id }}">
+                                    <button class="menu-item edit-btn" data-id="{{ reply2.id }}">Bearbeiten</button>
+                                    <button class="menu-item delete-own-btn" data-id="{{ reply2.id }}">Löschen</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="comment-body" id="body-{{ reply2.id }}">{{ reply2.content }}</div>
+                        <div class="comment-edit-form" id="edit-{{ reply2.id }}">
+                            <textarea class="edit-content">{{ reply2.content }}</textarea>
+                            <div class="form-actions">
+                                <button class="btn btn-primary save-edit-btn" data-id="{{ reply2.id }}">Speichern</button>
+                                <button class="btn cancel-edit-btn" data-id="{{ reply2.id }}">Abbrechen</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
+
                 {% endfor %}
             </div>
+            {% endif %}
+
         </div>
-        {% endif %}
         {% endfor %}
     {% else %}
         <p class="no-comments">Noch keine Kommentare.</p>
     {% endif %}
 
-    <div class="comment-form" id="comment-form-wrapper">
+    <div id="comment-form-wrapper">
         <h3>Kommentar schreiben</h3>
-        <input type="hidden" id="parent-id" value="">
         <input type="text" id="author" placeholder="Dein Name" required>
         <textarea id="content" placeholder="Kommentar schreiben..." required></textarea>
         <div class="form-actions">
             <button class="btn btn-primary" id="submit-comment">Absenden</button>
-            <button class="btn" id="cancel-reply" style="display:none">Abbrechen</button>
         </div>
     </div>
 </section>

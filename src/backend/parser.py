@@ -23,7 +23,7 @@ def parse_callouts(content: str) -> str:
                 i += 1
             continue
 
-        line = re.sub(r'==(.+?)==', r'<span class="inline-hidden">{"x" * len(m.group(1))}</span>', line)
+        line = re.sub(r'==(.+?)==', lambda m: f'<span class="inline-hidden">{"x" * len(m.group(1))}</span>', line)
         result.append(line)
         i += 1
 
