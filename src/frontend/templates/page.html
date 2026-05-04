@@ -12,24 +12,59 @@
 
 <section class="comments">
     <h2>Kommentare</h2>
+
     {% if comments %}
         {% for comment in comments %}
-        <div class="comment">
-            <div class="comment-header">
-                <strong>{{ comment.author_name }}</strong>
-                <span>{{ comment.created_at }}</span>
+        {% if comment.parent_id is none %}
+        <div class="comment-thread">
+            <div class="comment" id="comment-{{ comment.id }}">
+                <div class="comment-header">
+                    <span class="comment-author">{{ comment.author_name }}</span>
+                    <span class="comment-date">{{ comment.created_at }}</span>
+                    {% if comment.updated_at %}
+                    <span class="comment-edited">(bearbeitet)</span>
+                    {% endif %}
+                </div>
+                <div class="comment-body">{{ comment.content }}</div>
+                <div class="comment-actions">
+                    <button class="reply-btn" data-id="{{ comment.id }}">Antworten</button>
+                </div>
             </div>
-            <p>{{ comment.content }}</p>
+            <div class="comment-replies" id="replies-{{ comment.id }}">
+                {% for reply in comments %}
+                {% if reply.parent_id == comment.id %}
+                <div class="comment" id="comment-{{ reply.id }}">
+                    <div class="comment-header">
+                        <span class="comment-author">{{ reply.author_name }}</span>
+                        <span class="comment-date">{{ reply.created_at }}</span>
+                        {% if reply.updated_at %}
+                        <span class="comment-edited">(bearbeitet)</span>
+                        {% endif %}
+                    </div>
+                    <div class="comment-body">{{ reply.content }}</div>
+                    <div class="comment-actions">
+                        <button class="reply-btn" data-id="{{ reply.id }}">Antworten</button>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
         </div>
+        {% endif %}
         {% endfor %}
     {% else %}
         <p class="no-comments">Noch keine Kommentare.</p>
     {% endif %}
 
-    <form id="comment-form">
+    <div class="comment-form" id="comment-form-wrapper">
+        <h3>Kommentar schreiben</h3>
+        <input type="hidden" id="parent-id" value="">
         <input type="text" id="author" placeholder="Dein Name" required>
         <textarea id="content" placeholder="Kommentar schreiben..." required></textarea>
-        <button type="submit">Absenden</button>
-    </form>
+        <div class="form-actions">
+            <button class="btn btn-primary" id="submit-comment">Absenden</button>
+            <button class="btn" id="cancel-reply" style="display:none">Abbrechen</button>
+        </div>
+    </div>
 </section>
 {% endblock %}

@@ -17,6 +17,13 @@
             </svg>
             {{ campaign_name | upper }}
         </a>
+        <div class="nav-actions">
+            <button id="theme-toggle" aria-label="Theme wechseln">
+                <svg class="theme-icon" aria-hidden="true">
+                    <use id="theme-icon-use" href="#icon-sun"/>
+                </svg>
+            </button>
+        </div>
     </nav>
 
     <main>
@@ -26,13 +33,9 @@
     <footer>
         <span>{{ campaign_name }}</span>
         <a href="/datenschutz">Datenschutz</a>
-        <button id="theme-toggle" aria-label="Theme wechseln">
-            <svg class="theme-icon" aria-hidden="true">
-                <use id="theme-icon-use" href="#icon-sun"/>
-            </svg>
-        </button>
     </footer>
 
     <script src="/static/script.js"></script>
+    
 </body>
 </html>
