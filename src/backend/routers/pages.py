@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from ..dependencies import templates, get_vault_path, get_vault_theme
+from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
 from ..comments import get_comments, add_comment, edit_comment, delete_comment, generate_author_token
 from ..parser import parse_page, get_visibility
 
@@ -31,6 +31,7 @@ async def index(request: Request):
         "pages": pages,
         "vault_name": get_vault_theme(vault_path.name), 
         "campaign_name": vault_path.name,
+        "vault_icon": get_vault_icon(vault_path.name),
     })
 
 
@@ -40,7 +41,11 @@ async def page(request: Request, slug: str):
     filepath = vault / f"{slug}.md"
 
     if not filepath.exists():
-        return templates.TemplateResponse(request=request, name="404.html", status_code=404)
+        return templates.TemplateResponse(request=request, name="404.html", status_code=404, context={
+            "vault_name": get_vault_theme(vault.name),
+            "vault_icon": get_vault_icon(vault.name),
+            "campaign_name": vault.name
+        })
 
     page_data = parse_page(str(filepath))
 
@@ -49,7 +54,8 @@ async def page(request: Request, slug: str):
         "content": page_data["content"],
         "comments": get_comments(vault.name, slug),
         "vault_name": get_vault_theme(vault.name),
-        "campaign_name": vault.name
+        "campaign_name": vault.name,
+        "vault_icon": get_vault_icon(vault.name),
     })
 
 

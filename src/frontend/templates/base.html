@@ -7,16 +7,32 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="{{ vault_name }}">
+
+    {% include "icons.svg" %}
+
     <nav>
-        <a href="/" class="nav-logo">📖 {{ campaign_name }}</a>
+        <a href="/" class="nav-logo">
+            <svg class="nav-icon" aria-hidden="true">
+                <use href="#icon-{{ vault_icon }}"/>
+            </svg>
+            {{ campaign_name | upper }}
+        </a>
     </nav>
+
     <main>
         {% block content %}{% endblock %}
     </main>
+
     <footer>
-        <p>{{ campaign_name }} – D&D Wiki</p>
-        <button id="theme-toggle">🌓 Theme</button>
+        <span>{{ campaign_name }}</span>
+        <a href="/datenschutz">Datenschutz</a>
+        <button id="theme-toggle" aria-label="Theme wechseln">
+            <svg class="theme-icon" aria-hidden="true">
+                <use id="theme-icon-use" href="#icon-sun"/>
+            </svg>
+        </button>
     </footer>
+
     <script src="/static/script.js"></script>
 </body>
 </html>

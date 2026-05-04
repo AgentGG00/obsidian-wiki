@@ -371,6 +371,19 @@ nav {
     gap: var(--space-sm);
 }
 
+.nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+    flex-shrink: 0;
+}
+
+.theme-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    display: block;
+}
+
 
 /* ============================================================
    FOOTER

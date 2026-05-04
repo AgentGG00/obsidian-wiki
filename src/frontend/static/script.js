@@ -14,10 +14,9 @@ function cycleTheme() {
 }
 
 function updateToggleLabel() {
-    const btn = document.getElementById("theme-toggle");
-    if (!btn) return;
-    const labels = { light: "Hell", dark: "Dunkel" };
-    btn.textContent = labels[currentTheme];
+    const use = document.getElementById("theme-icon-use");
+    if (!use) return;
+    use.setAttribute("href", currentTheme === "dark" ? "#icon-moon" : "#icon-sun");
 }
 
 applyTheme(currentTheme);

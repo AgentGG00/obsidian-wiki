@@ -5,7 +5,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent.parent / ".env")
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
-from .dependencies import templates
+from .dependencies import get_vault_icon, get_vault_path, get_vault_theme, templates
 from .comments import init_db
 from .routers import pages
 from .admin.router import router as admin_router
@@ -19,5 +19,9 @@ app.include_router(pages.router)
 
 @app.exception_handler(404)
 async def not_found(request: Request, exc: HTTPException):
-    return templates.TemplateResponse(request=request, name="404.html", status_code=404)
-
+    vault = get_vault_path(request)
+    return templates.TemplateResponse(request=request, name="404.html", status_code=404, context={
+        "vault_name": get_vault_theme(vault.name),
+        "vault_icon": get_vault_icon(vault.name),
+        "campaign_name": vault.name
+    })
