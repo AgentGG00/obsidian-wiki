@@ -44,6 +44,14 @@ async def index(request: Request):
         "vault_icon": get_vault_icon(vault_path.name),
     })
 
+@router.get("/datenschutz")
+async def datenschutz(request: Request):
+    vault = get_vault_path(request)
+    return templates.TemplateResponse(request=request, name="datenschutz.html", context={
+        "vault_name": get_vault_theme(vault.name),
+        "vault_icon": get_vault_icon(vault.name),
+        "campaign_name": vault.name,
+    })
 
 @router.get("/{slug}")
 async def page(request: Request, slug: str):
@@ -79,14 +87,12 @@ async def post_comment(request: Request, slug: str, comment: CommentIn, response
     vault_name = vault.name
 
     author_token = request.cookies.get("author_token") or generate_author_token()
-    ip = request.client.host
 
     new_comment = add_comment(
         vault=vault_name,
         page_slug=slug,
         author_name=comment.author_name,
         content=comment.content,
-        ip=ip,
         author_token=author_token,
         parent_id=comment.parent_id
     )
