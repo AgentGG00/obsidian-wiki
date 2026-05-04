@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from ..dependencies import templates, get_vault_path
+from ..dependencies import templates, get_vault_path, get_vault_theme
 from ..comments import get_comments, add_comment, edit_comment, delete_comment, generate_author_token
 from ..parser import parse_page, get_visibility
 
@@ -27,7 +27,11 @@ async def index(request: Request):
             "title": file.stem.replace("-", " ").title()
         })
 
-    return templates.TemplateResponse(request=request, name="index.html", context={"pages": pages})
+    return templates.TemplateResponse(request=request, name="index.html", context={
+        "pages": pages,
+        "vault_name": get_vault_theme(vault_path.name), 
+        "campaign_name": vault_path.name,
+    })
 
 
 @router.get("/{slug}")
@@ -43,7 +47,9 @@ async def page(request: Request, slug: str):
     return templates.TemplateResponse(request=request, name="page.html", context={
         "title": slug.replace("-", " ").title(),
         "content": page_data["content"],
-        "comments": get_comments(vault.name, slug)
+        "comments": get_comments(vault.name, slug),
+        "vault_name": get_vault_theme(vault.name),
+        "campaign_name": vault.name
     })
 
 
