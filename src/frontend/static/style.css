@@ -26,7 +26,7 @@ html {
    ISEKAI – LIGHT
    ============================================================ */
 
-.vault-isekai-dnd {
+html.vault-isekai-dnd {
     --bg:             #f7f3eb;
     --bg-secondary:   #ede7d9;
     --bg-tertiary:    #e2d9c8;
@@ -40,7 +40,7 @@ html {
     --callout-hidden: #2c2416;
 }
 
-.vault-isekai-dnd[data-theme="dark"] {
+html.vault-isekai-dnd[data-theme="dark"] {
     --bg:             #1a2420;
     --bg-secondary:   #1f2d28;
     --bg-tertiary:    #253530;
@@ -59,7 +59,7 @@ html {
    HORIZON – LIGHT
    ============================================================ */
 
-.vault-horizon-dnd {
+html.vault-horizon-dnd {
     --bg:             #f2ede6;
     --bg-secondary:   #e8e0d4;
     --bg-tertiary:    #ddd3c4;
@@ -73,7 +73,7 @@ html {
     --callout-hidden: #2a2420;
 }
 
-.vault-horizon-dnd[data-theme="dark"] {
+html.vault-horizon-dnd[data-theme="dark"] {
     --bg:             #1c1a17;
     --bg-secondary:   #232018;
     --bg-tertiary:    #2c271e;
@@ -92,7 +92,7 @@ html {
    NEUE KAMPAGNE – LIGHT
    ============================================================ */
 
-.vault-neue-langzeitkampagne {
+html.vault-neue-langzeitkampagne {
     --bg:             #f5f0ec;
     --bg-secondary:   #ece4dc;
     --bg-tertiary:    #e0d4ca;
@@ -106,7 +106,7 @@ html {
     --callout-hidden: #1e1820;
 }
 
-.vault-neue-langzeitkampagne[data-theme="dark"] {
+html.vault-neue-langzeitkampagne[data-theme="dark"] {
     --bg:             #161218;
     --bg-secondary:   #1c1620;
     --bg-tertiary:    #231c28;
@@ -120,6 +120,7 @@ html {
     --callout-hidden: #0a080c;
 }
 
+
 /* ============================================================
    VIEWPORT / FLUID TYPOGRAPHY
    ============================================================ */
@@ -128,10 +129,8 @@ html {
     --font-heading: 'Cinzel', Georgia, serif;
     --font-body: 'EB Garamond', Georgia, serif;
 
-    /* Fluid font-size: skaliert von 15px (320px) bis 18px (1280px+) */
     --font-size-base: clamp(0.9375rem, 0.8rem + 0.6vw, 1.125rem);
 
-    /* Fluid spacing */
     --space-xs:  clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
     --space-sm:  clamp(0.5rem,  0.4rem + 0.5vw,  0.75rem);
     --space-md:  clamp(0.75rem, 0.6rem + 0.75vw, 1.25rem);
@@ -144,6 +143,7 @@ html {
     --line-height: 1.75;
 }
 
+
 /* ============================================================
    BASE
    ============================================================ */
@@ -154,7 +154,7 @@ body {
     line-height: var(--line-height);
     background-color: var(--bg);
     color: var(--text);
-    transition: background-color var(--transition), color var(--transition);
+    transition: color var(--transition);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -552,8 +552,6 @@ footer a:hover {
    CALLOUTS
    ============================================================ */
 
-/* style.css – .callout-hidden Block ersetzen */
-
 .callout-hidden {
     position: relative;
     display: block;
@@ -811,6 +809,7 @@ select:focus {
    ============================================================ */
 
 #cookie-banner {
+    display: none;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -870,6 +869,15 @@ select:focus {
     display: flex;
     gap: var(--space-sm);
     flex-wrap: wrap;
+}
+
+#cookie-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 998;
+    backdrop-filter: blur(2px);
 }
 
 

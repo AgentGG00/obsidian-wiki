@@ -29,7 +29,7 @@ async def index(request: Request):
 
     return templates.TemplateResponse(request=request, name="index.html", context={
         "pages": pages,
-        "vault_name": get_vault_theme(vault_path.name), 
+        "vault_name": get_vault_theme(vault_path.name),
         "campaign_name": vault_path.name,
         "vault_icon": get_vault_icon(vault_path.name),
     })
@@ -44,7 +44,7 @@ async def page(request: Request, slug: str):
         return templates.TemplateResponse(request=request, name="404.html", status_code=404, context={
             "vault_name": get_vault_theme(vault.name),
             "vault_icon": get_vault_icon(vault.name),
-            "campaign_name": vault.name
+            "campaign_name": vault.name,
         })
 
     page_data = parse_page(str(filepath))
@@ -82,6 +82,7 @@ async def post_comment(request: Request, slug: str, comment: CommentIn, response
         response.set_cookie("author_token", author_token, max_age=60*60*24*365, httponly=True, samesite="lax")
 
     return JSONResponse({"ok": True, "comment": new_comment})
+
 
 @router.patch("/comments/{comment_id}")
 async def update_comment(request: Request, comment_id: int, comment: CommentIn):
