@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <h2>Kommentarverwaltung – {{ vault }}</h2>
+
+    {% if comments %}
+        {% for comment in comments %}
+        <div class="admin-comment" id="comment-{{ comment.id }}">
+            <div class="comment-header">
+                <strong>{{ comment.author_name }}</strong>
+                <span>{{ comment.vault }} / {{ comment.page_slug }}</span>
+                <span>{{ comment.created_at }}</span>
+                <button class="delete-btn" data-id="{{ comment.id }}">Löschen</button>
+            </div>
+            <p>{{ comment.content }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-comments">Keine Kommentare vorhanden.</p>
+    {% endif %}
+</div>
+
+<script>
+document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const response = await fetch(`/admin/comments/${id}`, { method: "DELETE" });
+        if (response.ok) {
+            document.getElementById(`comment-${id}`).remove();
+        }
+    });
+});
+</script>
+{% endblock %}

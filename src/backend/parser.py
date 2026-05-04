@@ -17,12 +17,13 @@ def parse_callouts(content: str) -> str:
             continue
 
         if line.startswith("> [!hidden]"):
-            result.append('<div class="callout-hidden">████████████████</div>')
+            result.append('<div class="callout-hidden"></div>')
             i += 1
             while i < len(lines) and lines[i].startswith(">"):
                 i += 1
             continue
 
+        line = re.sub(r'==(.+?)==', r'<span class="inline-hidden">{"x" * len(m.group(1))}</span>', line)
         result.append(line)
         i += 1
 

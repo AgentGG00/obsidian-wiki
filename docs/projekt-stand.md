@@ -26,11 +26,16 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 | `mcp-obsidian-umschulung` | umschulung | 3304 |
 | `mcp-obsidian-techprojekte` | techprojekte | 3305 |
 
+## Admins
+
+| Name | Vault-Zugriff |
+| --- | --- |
+| Niklas | `*` (alle Vaults) |
+| Jana | `isekai-dnd` |
+
 ## Offene Entscheidungen
 
 - [ ] Name der dritten Kampagne (Domain: aktuell offen)
-- [ ] Design/Theme der Wiki-Oberfläche (dark Fantasy-Stil geplant)
-- [ ] Kommentare moderierbar durch DM (Phase 2)
 
 ---
 
@@ -39,28 +44,61 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 ### Init
 
 - [x] GitHub Repo anlegen
-- [ ] Repo-Struktur anlegen (`src/backend/`, `src/frontend/`, `src/db/`, `docs/`)
-- [ ] `.gitignore` anpassen (`src/db/`, `.env`)
-- [ ] `.env.example` erstellen
-- [ ] VDS mit Git verknüpfen
+- [x] `.gitignore` anpassen
+- [x] `.env.example` erstellen
+- [x] Repo-Struktur finalisieren (`src/backend/routers/`, `src/db/`)
+- [x] VDS mit Git verknüpfen
 
 ### Backend
 
-- [ ] `main.py` – FastAPI Grundstruktur
-- [ ] `config.py` – Domain → Vault-Ordner Mapping
-- [ ] `parser.py` – Markdown + Frontmatter-Unterstützung
-- [ ] `parser.py` – Callout-Logik (`hidden`, `dm-only`)
-- [ ] `routers/pages.py` – Routing für Index, Einzelseite, 404
-- [ ] `comments.py` – SQLite Modell + Endpunkte
+- [x] `main.py` – FastAPI Grundstruktur
+- [x] `config.py` – Domain → Vault-Ordner Mapping
+- [x] `parser.py` – Markdown + Frontmatter-Unterstützung
+- [x] `parser.py` – Callout-Logik (`hidden`, `dm-only`)
+- [x] `comments.py` – SQLite Modell + Basis-Endpunkte
+- [x] `routers/pages.py` – Routing auslagern aus `main.py`
+- [x] `comments.py` – Threading (max. 5 Ebenen, `parent_id`-Spalte)
+- [x] `comments.py` – IP-Hashing (SHA-256, vor Speicherung)
+- [x] `comments.py` – Autoren-Token (zufälliger UUID, mit Kommentar gespeichert)
+- [x] `comments.py` – Bearbeiten/Löschen per Autoren-Token (nur wenn Kategorie-2-Cookie gesetzt)
+- [ ] `admin/auth.py` – Tailscale-IP-Whitelist aus `.env`
+- [ ] `admin/auth.py` – Login-Route `/admin/login`, SHA-256 Passwort-Prüfung, Session-Cookie
+- [ ] `admin/auth.py` – Multi-Admin aus `.env` (Niklas: alle Vaults, Jana: `isekai-dnd`)
+- [ ] `admin/router.py` – Kommentare einsehen, bearbeiten, löschen (vault-gefiltert)
 
 ### Frontend
 
-- [ ] `base.html` – Grundlayout
-- [ ] `index.html` – Übersichtsseite
-- [ ] `page.html` – Einzelseite mit Callout-Rendering
-- [ ] Kommentarformular + Kommentarliste
-- [ ] `style.css` – Fantasy-Theme, responsive
-- [ ] `script.js` – Kommentar absenden
+- [x] `base.html` – Grundlayout
+- [x] `index.html` – Übersichtsseite
+- [x] `page.html` – Einzelseite mit Callout-Rendering
+- [x] `404.html` – Fehlerseite
+- [ ] `admin/login.html` – Admin Login-Formular
+- [ ] `admin/dashboard.html` – Kommentarverwaltung
+- [ ] Kommentarformular – Name vorausfüllen (Kategorie-2-Cookie)
+- [ ] Kommentarformular – Felder leeren nach Absenden
+- [ ] Kommentarformular – Threading-UI (Antworten, max. 5 Ebenen)
+- [ ] Kommentare – Bearbeiten/Löschen-Button (nur wenn Autoren-Token im Cookie)
+- [ ] `cookie-banner.html` / Partial – DSGVO-konformer Banner, Opt-in pro Kategorie
+- [ ] `datenschutz.html` – Statische Datenschutzseite (Route `/datenschutz`)
+
+### feat: Design
+
+- [ ] `style.css` – Komplett neu, schlicht mit Fantasy-Anklang, keine KI-Ästhetik
+- [ ] `style.css` – Dark/Light Theme, CSS Custom Properties
+- [ ] `style.css` – System-Preference als Default beim ersten Besuch
+- [ ] `style.css` – Responsive Breakpoints (Mobile, Tablet, Desktop)
+- [ ] `style.css` – Viewport korrekt berücksichtigt (Nav, Content, Kommentare)
+- [ ] `style.css` – Keine Standard-Emojis, Custom-Icons oder Text
+- [ ] `script.js` – Theme-Umschaltung überarbeiten (System → Light → Dark)
+- [ ] `script.js` – Theme-Cookie nur setzen wenn Kategorie 1 akzeptiert, sonst session-only
+
+### feat: Cookie & DSGVO
+
+- [ ] Cookie-Banner beim ersten Besuch
+- [ ] Kategorie 1: Theme-Präferenz (localStorage/Cookie)
+- [ ] Kategorie 2: Komfort (Name + Autoren-Token)
+- [ ] Ablehnen → kein Cookie gesetzt, Theme läuft session-basiert
+- [ ] Datenschutzseite `/datenschutz` – welche Cookies, wofür, wie löschen
 
 ### feat: MCP Server
 
@@ -75,18 +113,20 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 
 ### Install
 
-- [ ] `requirements.txt` erstellen
+- [ ] `requirements.txt` prüfen und ergänzen (z.B. `python-multipart` für Forms)
 - [ ] Abhängigkeiten auf VDS installieren
 
 ### Test / Review
 
 - [ ] Parser-Logik testen (Frontmatter, Callouts)
-- [ ] Multi-Vault-Routing testen (alle drei Domains)
-- [ ] Kommentarsystem testen
+- [ ] Multi-Vault-Routing testen (alle Domains)
+- [ ] Kommentarsystem testen (Threading, Token, IP-Hash)
+- [ ] Cookie-Banner testen (Opt-in/Opt-out, Session-Fallback)
+- [ ] Admin-Login testen (IP-Whitelist, Session-Cookie, Vault-Filter)
 
 ### Deployment
 
 - [ ] systemd Service `obsidian-wiki.service` einrichten
-- [ ] Apache vHosts für alle drei Domains konfigurieren
+- [ ] Apache vHosts für alle Domains konfigurieren
 - [ ] Certbot SSL einrichten
 - [ ] Cloudflare DNS A-Records setzen

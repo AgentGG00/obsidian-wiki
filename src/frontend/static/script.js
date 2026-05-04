@@ -1,14 +1,8 @@
-// Theme
-const themes = ["system", "light", "dark"];
-let currentTheme = localStorage.getItem("theme") || "system";
+const themes = ["light", "dark"];
+let currentTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 function applyTheme(theme) {
-    if (theme === "system") {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
-    } else {
-        document.documentElement.setAttribute("data-theme", theme);
-    }
+    document.body.setAttribute("data-theme", theme);
 }
 
 function cycleTheme() {
@@ -20,10 +14,9 @@ function cycleTheme() {
 }
 
 function updateToggleLabel() {
-    const btn = document.getElementById("theme-toggle");
-    if (!btn) return;
-    const labels = { system: "🌓 System", light: "☀️ Hell", dark: "🌙 Dunkel" };
-    btn.textContent = labels[currentTheme];
+    const use = document.getElementById("theme-icon-use");
+    if (!use) return;
+    use.setAttribute("href", currentTheme === "dark" ? "#icon-moon" : "#icon-sun");
 }
 
 applyTheme(currentTheme);
@@ -34,25 +27,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const toggleBtn = document.getElementById("theme-toggle");
     if (toggleBtn) toggleBtn.addEventListener("click", cycleTheme);
 
-    // Kommentare
     const form = document.getElementById("comment-form");
     if (!form) return;
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const author = document.getElementById("author").value;
-        const content = document.getElementById("content").value;
+        const authorInput = document.getElementById("author");
+        const contentInput = document.getElementById("content");
         const slug = window.location.pathname.replace("/", "");
 
         const response = await fetch(`/comments/${slug}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ author_name: author, content: content }),
+            body: JSON.stringify({ author_name: authorInput.value, content: contentInput.value }),
         });
 
         if (response.ok) {
-            location.reload();
+            authorInput.value = "";
+            contentInput.value = "";
         }
     });
 });
