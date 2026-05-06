@@ -10,6 +10,18 @@
     </div>
 </article>
 
+<nav class="page-nav">
+    {% if prev_page %}
+    <a href="/{{ prev_page.slug }}" class="page-nav-prev">← {{ prev_page.title }}</a>
+    {% else %}
+    <span></span>
+    {% endif %}
+
+    {% if next_page %}
+    <a href="/{{ next_page.slug }}" class="page-nav-next">{{ next_page.title }} →</a>
+    {% endif %}
+</nav>
+
 <section class="comments">
     <h2>Kommentare</h2>
 

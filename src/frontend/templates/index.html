@@ -3,12 +3,28 @@
 {% block title %}Startseite{% endblock %}
 
 {% block content %}
-<div class="page-list">
-    <h2>Alle Seiten</h2>
+{% macro render_chapter(chapter, depth) %}
+<div class="chapter chapter-depth-{{ depth }}">
+    <h{{ depth + 2 }}>{{ chapter.title }}</h{{ depth + 2 }}>
+    {% if chapter.pages %}
     <ul>
-        {% for page in pages %}
+        {% for page in chapter.pages %}
         <li><a href="/{{ page.slug }}">{{ page.title }}</a></li>
         {% endfor %}
     </ul>
+    {% endif %}
+    {% if chapter.children %}
+        {% for child in chapter.children %}
+            {{ render_chapter(child, depth + 1) }}
+        {% endfor %}
+    {% endif %}
+</div>
+{% endmacro %}
+
+<div class="page-list">
+    <h1>Inhaltsverzeichnis</h1>
+    {% for chapter in chapters %}
+        {{ render_chapter(chapter, 0) }}
+    {% endfor %}
 </div>
 {% endblock %}

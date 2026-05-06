@@ -1228,3 +1228,63 @@ select:focus {
     z-index: 199;
     backdrop-filter: blur(2px);
 }
+
+/* ============================================================
+   INHALTSVERZEICHNIS
+   ============================================================ */
+
+.chapter {
+    margin-bottom: var(--space-xl);
+}
+
+.chapter-depth-0 > h2 {
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border);
+}
+
+.chapter-depth-1 {
+    margin-left: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.chapter-depth-2 {
+    margin-left: var(--space-xl);
+    margin-top: var(--space-sm);
+}
+
+
+/* ============================================================
+   SEITEN-NAVIGATION
+   ============================================================ */
+
+.page-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+    gap: var(--space-md);
+}
+
+.page-nav-prev,
+.page-nav-next {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--transition);
+    max-width: 45%;
+}
+
+.page-nav-prev:hover,
+.page-nav-next:hover {
+    color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.page-nav-next {
+    text-align: right;
+    margin-left: auto;
+}

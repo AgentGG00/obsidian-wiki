@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import JSONResponse
-from httpx import request
 from pydantic import BaseModel
 from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
 from ..comments import get_comments, add_comment, edit_comment, delete_comment, generate_author_token
-from ..parser import parse_page, get_visibility
+from ..parser import parse_page, get_visibility, parse_toc, flatten_toc
 
 router = APIRouter()
 
@@ -13,6 +12,7 @@ class CommentIn(BaseModel):
     author_name: str
     content: str
     parent_id: int | None = None
+
 
 def build_comment_tree(comments: list) -> list:
     by_id = {c["id"]: {**c, "replies": []} for c in comments}
@@ -24,25 +24,19 @@ def build_comment_tree(comments: list) -> list:
             by_id[c["parent_id"]]["replies"].append(by_id[c["id"]])
     return roots
 
+
 @router.get("/")
 async def index(request: Request):
     vault_path = get_vault_path(request)
-    pages = []
-
-    for file in vault_path.glob("*.md"):
-        if get_visibility(str(file)) == "dm-only":
-            continue
-        pages.append({
-            "slug": file.stem,
-            "title": file.stem.replace("-", " ").title()
-        })
+    chapters = parse_toc(str(vault_path))
 
     return templates.TemplateResponse(request=request, name="index.html", context={
-        "pages": pages,
+        "chapters": chapters,
         "vault_name": get_vault_theme(vault_path.name),
         "campaign_name": vault_path.name,
         "vault_icon": get_vault_icon(vault_path.name),
     })
+
 
 @router.get("/datenschutz")
 async def datenschutz(request: Request):
@@ -52,6 +46,7 @@ async def datenschutz(request: Request):
         "vault_icon": get_vault_icon(vault.name),
         "campaign_name": vault.name,
     })
+
 
 @router.get("/{slug}")
 async def page(request: Request, slug: str):
@@ -69,15 +64,24 @@ async def page(request: Request, slug: str):
     raw_comments = get_comments(vault.name, slug)
     author_token = request.cookies.get("author_token")
     owned_ids = [c["id"] for c in raw_comments if c.get("author_token") == author_token] if author_token else []
+    chapters = parse_toc(str(vault))
+    flat = flatten_toc(chapters, str(vault))
+    slugs = [p["slug"] for p in flat]
+
+    current_index = slugs.index(slug) if slug in slugs else -1
+    prev_page = flat[current_index - 1] if current_index > 0 else None
+    next_page = flat[current_index + 1] if current_index < len(flat) - 1 else None
 
     return templates.TemplateResponse(request=request, name="page.html", context={
-        "title": slug.replace("-", " ").title(),
+        "title": page_data["title"],
         "content": page_data["content"],
         "comments": build_comment_tree(raw_comments),
         "owned_ids": owned_ids,
         "vault_name": get_vault_theme(vault.name),
         "campaign_name": vault.name,
         "vault_icon": get_vault_icon(vault.name),
+        "prev_page": prev_page,
+        "next_page": next_page,
     })
 
 
