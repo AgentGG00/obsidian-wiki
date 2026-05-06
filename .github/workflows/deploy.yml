@@ -18,5 +18,5 @@ jobs:
             cd /var/www/obsidian-wiki
             git fetch --tags
             git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
-            sudo docker compose up -d --build
+            docker compose up -d --build
            
