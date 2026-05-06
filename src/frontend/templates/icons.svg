@@ -40,7 +40,7 @@
     <circle cx="32" cy="32" r="4.5" fill="currentColor"/>
   </symbol>
 
-  <symbol id="icon-neu" viewBox="0 0 64 64" fill="none">
+  <symbol id="icon-otherworld" viewBox="0 0 64 64" fill="none">
     <path d="M32,3 L35.5,30 L32,34 L28.5,30 Z" fill="currentColor"/>
     <path d="M16,33 Q24,28 32,33 Q40,28 48,33 Q40,38 32,33 Q24,38 16,33 Z" fill="currentColor"/>
     <rect x="29.5" y="33" width="5" height="16" rx="1.5" fill="currentColor"/>
