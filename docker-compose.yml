@@ -7,5 +7,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./src/db:/app/src/db
+      - ./src:/app/src  
       - /data/nas/vaults:/data/nas/vaults:ro  

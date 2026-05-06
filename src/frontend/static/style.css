@@ -135,10 +135,10 @@ html.vault-horizon-dnd[data-theme="dark"] {
 
 
 /* ============================================================
-   NEUE KAMPAGNE – LIGHT
+   Otherworld – LIGHT
    ============================================================ */
 
-html.vault-neue-langzeitkampagne {
+html.vault-Otherworld {
     --bg:             #f5f0ec;
     --bg-secondary:   #ece4dc;
     --bg-tertiary:    #e0d4ca;
@@ -152,7 +152,7 @@ html.vault-neue-langzeitkampagne {
     --callout-hidden: #1e1820;
 }
 
-html.vault-neue-langzeitkampagne[data-theme="dark"] {
+html.vault-Otherworld[data-theme="dark"] {
     --bg:             #161218;
     --bg-secondary:   #1c1620;
     --bg-tertiary:    #231c28;
