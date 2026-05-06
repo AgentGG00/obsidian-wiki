@@ -138,7 +138,7 @@ html.vault-horizon-dnd[data-theme="dark"] {
    Otherworld – LIGHT
    ============================================================ */
 
-html.vault-Otherworld {
+html.vault-otherworld-dnd {
     --bg:             #f5f0ec;
     --bg-secondary:   #ece4dc;
     --bg-tertiary:    #e0d4ca;
@@ -152,7 +152,7 @@ html.vault-Otherworld {
     --callout-hidden: #1e1820;
 }
 
-html.vault-Otherworld[data-theme="dark"] {
+html.vault-otherworld-dnd[data-theme="dark"] {
     --bg:             #161218;
     --bg-secondary:   #1c1620;
     --bg-tertiary:    #231c28;
