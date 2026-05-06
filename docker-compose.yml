@@ -1,0 +1,11 @@
+services:
+  obsidian-wiki:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8090:8090"
+    env_file:
+      - .env
+    volumes:
+      - ./src/db:/app/src/db
+      - /data/nas/vaults:/data/nas/vaults:ro  
