@@ -7,7 +7,7 @@ const themes = ["light", "dark"];
 let currentTheme = (k1Consent ? localStorage.getItem("theme") : null) || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 function applyTheme(theme) {
-    document.body.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
 }
 
 function cycleTheme() {

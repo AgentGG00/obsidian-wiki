@@ -22,7 +22,7 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 | --- | --- | --- |
 | `mcp-obsidian-horizon` | horizon-dnd | 3301 |
 | `mcp-obsidian-isekai` | isekai-dnd | 3302 |
-| `mcp-obsidian-neuekampagne` | neue-langzeitkampagne | 3303 |
+| `mcp-obsidian-otherworld-dnd` | Otherworld | 3303 |
 | `mcp-obsidian-umschulung` | umschulung | 3304 |
 | `mcp-obsidian-techprojekte` | techprojekte | 3305 |
 
@@ -98,7 +98,7 @@ Eine selbst gehostete Wiki-Webapp für D&D-Kampagnen. Spieler können Lore, NPCs
 - [x] `style.css` – Responsive Breakpoints (Mobile, Tablet, Desktop)
 - [x] `style.css` – Viewport korrekt berücksichtigt (Nav, Content, Kommentare)
 - [x] `style.css` – Keine Standard-Emojis, Custom-Icons (SVG Sprite)
-- [x] `style.css` – Kampagnen-spezifische Farbthemen (horizon, isekai, neue-langzeitkampagne)
+- [x] `style.css` – Kampagnen-spezifische Farbthemen (horizon, isekai, Otherworld)
 - [x] `style.css` – Tintenklecks-Callout (block + inline)
 - [x] `style.css` – ⋮-Dropdown-Menü, Inline-Edit-Form, Reply-Form, Confirm-Popout
 - [x] `script.js` – Theme-Umschaltung (Light/Dark, System-Default)

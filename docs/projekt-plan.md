@@ -70,7 +70,7 @@ Browser (Spieler)
 | --- | --- |
 | `horizon.framenode.net` | `/data/nas/vaults/horizon-dnd/` |
 | `isekai.framenode.net` | `/data/nas/vaults/isekai-dnd/` |
-| `[offen]` | `/data/nas/vaults/neue-langzeitkampagne/` |
+| `[offen]` | `/data/nas/vaults/Otherworld/` |
 
 ## Sichtbarkeits-System
 
