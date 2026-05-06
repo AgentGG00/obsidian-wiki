@@ -6,13 +6,9 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
 from .dependencies import get_vault_icon, get_vault_path, get_vault_theme, templates
-from .comments import init_db
 from .routers import pages
-from .admin.router import router as admin_router
 
 app = FastAPI()
-app.include_router(admin_router)
-init_db()
 
 app.mount("/static", StaticFiles(directory="src/frontend/static"), name="static")
 app.include_router(pages.router)

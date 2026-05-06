@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         (function() {
-            const k1 = document.cookie.includes("cookie_consent_k1=true");
-            const theme = (k1 ? localStorage.getItem("theme") : null)
-                || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
             document.documentElement.setAttribute("data-theme", theme);
         })();
     </script>
@@ -16,7 +14,6 @@
 </head>
 <body class="{{ vault_name }}">
 
-    {% include "cookie-banner.html" %}
     {% include "icons.svg" %}
 
     <nav>
