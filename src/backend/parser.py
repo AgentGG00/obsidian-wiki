@@ -20,10 +20,34 @@ def parse_callouts(content: str) -> str:
             continue
 
         if line.startswith("> [!hidden]"):
-            result.append('<div class="callout-hidden"></div>')
+            inner_lines = []
             i += 1
             while i < len(lines) and lines[i].startswith(">"):
+                inner_lines.append(lines[i][2:])
                 i += 1
+            line_count = max(len(inner_lines), 1)
+            max_chars = max((len(l) for l in inner_lines), default=20)
+            result.append(f'<div class="callout-hidden" style="--lines:{line_count};--chars:{max_chars}"></div>')
+            continue
+
+        if line.startswith("> [!picture]"):
+            inner = []
+            i += 1
+            while i < len(lines) and lines[i].startswith(">"):
+                inner.append(lines[i][2:])
+                i += 1
+            inner_md = markdown.markdown("\n".join(inner))
+            result.append(f'<aside class="sidebar-item sidebar-picture">{inner_md}</aside>')
+            continue
+
+        if line.startswith("> [!notes]"):
+            inner = []
+            i += 1
+            while i < len(lines) and lines[i].startswith(">"):
+                inner.append(lines[i][2:])
+                i += 1
+            inner_md = markdown.markdown("\n".join(inner), extensions=['tables'])
+            result.append(f'<aside class="sidebar-item sidebar-notes">{inner_md}</aside>')
             continue
 
         line = re.sub(r'==(.+?)==', lambda m: f'<span class="inline-hidden">{"x" * len(m.group(1))}</span>', line)
@@ -40,7 +64,7 @@ def parse_page(filepath: str) -> dict:
     visibility = post.get("visibility", "public")
     title = post.get("title", Path(filepath).stem.replace("-", " ").title())
     content = parse_callouts(post.content)
-    content_html = markdown.markdown(content)
+    content_html = markdown.markdown(content, extensions=['tables'])
 
     return {
         "visibility": visibility,
@@ -68,7 +92,7 @@ def parse_toc(vault_path: str) -> list:
 def flatten_toc(chapters: list, vault_path: str) -> list:
     flat = []
 
-    def walk(items):
+    def walk(items, chapter_idx, subchapter_path):
         for item in items:
             if "pages" in item:
                 for page in item["pages"]:
@@ -81,9 +105,15 @@ def flatten_toc(chapters: list, vault_path: str) -> list:
                             flat.append({
                                 "slug": slug,
                                 "title": page["title"],
+                                "chapter_idx": chapter_idx,
+                                "subchapter_path": subchapter_path,
                             })
             if "children" in item:
-                walk(item["children"])
+                for i, child in enumerate(item["children"]):
+                    child_path = f"{subchapter_path}.{i}"
+                    walk([child], chapter_idx, child_path)
 
-    walk(chapters)
+    for i, chapter in enumerate(chapters):
+        walk([chapter], i, str(i))
+
     return flat

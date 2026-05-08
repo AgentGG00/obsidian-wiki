@@ -1,12 +1,10 @@
 class BookEngine {
     constructor() {
-        this.toc = [];
         this.flat = [];
-        this.pages = [];
-        this.currentMd = 0;
-        this.currentPage = 0;
-        this.isDouble = false;
+        this.toc = [];
+        this.currentIdx = -1;
         this.isAnimating = false;
+        this.history = [];
 
         this.clickCount = 0;
         this.clickTimer = null;
@@ -21,316 +19,240 @@ class BookEngine {
         this.toc = data.chapters;
         this.flat = data.flat;
 
-        this.updateLayout();
+        const path = window.location.pathname;
+        if (path !== '/' && path !== '') {
+            const slug = path.slice(1);
+            const idx = this.flat.findIndex(p => p.slug === slug);
+            if (idx >= 0) this.currentIdx = idx;
+        }
+
         this.buildTocDropdown();
-        this.setupHiddenRender();
-
-        await this.loadMd(this.currentMd);
-        this.render();
+        this.updateHeader();
+        this.updateFooter();
         this.setupEvents();
-
-        if (this.flat.length > 1) {
-            this.loadMd(1);
-        }
     }
 
-    updateLayout() {
-        const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-        const isWide = window.innerWidth >= 1024;
-        const isTabletLandscape = window.innerWidth >= 768 && isLandscape;
-        this.isDouble = isWide || isTabletLandscape;
-        document.body.classList.toggle('single-page', !this.isDouble);
-        document.body.classList.toggle('double-page', this.isDouble);
-        document.body.classList.add('layout-ready');
-    }
+    updateHeader() {
+        const backBtn = document.getElementById('back-btn');
+        const backSep = document.getElementById('back-separator');
+        const backLabel = document.getElementById('back-label');
 
-    getPageDimensions() {
-        const stage = document.getElementById('book-stage');
-        const stageRect = stage.getBoundingClientRect();
-        const width = this.isDouble ? (stageRect.width - 2) / 2 : stageRect.width;
-        const height = stageRect.height;
-        return { width, height };
-    }
-
-    setupHiddenRender() {
-        const hidden = document.getElementById('book-hidden-render');
-        const { width, height } = this.getPageDimensions();
-        const contentEl = document.querySelector('.book-page-content');
-        if (!contentEl) return;
-        const style = getComputedStyle(contentEl);
-        hidden.style.width = width + 'px';
-        hidden.style.height = height + 'px';
-        hidden.style.padding = style.padding;
-        hidden.style.fontFamily = style.fontFamily;
-        hidden.style.fontSize = style.fontSize;
-        hidden.style.lineHeight = style.lineHeight;
-    }
-
-    async loadMd(mdIndex) {
-        if (this.pages[mdIndex] !== undefined) return;
-
-        const slug = this.flat[mdIndex]?.slug;
-        if (!slug) return;
-
-        const res = await fetch(`/api/page/${slug}`);
-        if (!res.ok) {
-            this.pages[mdIndex] = ['<p>Seite nicht gefunden.</p>'];
-            return;
-        }
-        const data = await res.json();
-        const fullHtml = `<h1>${data.title}</h1>${data.content}`;
-        this.pages[mdIndex] = this.splitContent(fullHtml);
-    }
-
-    splitContent(html) {
-        const hidden = document.getElementById('book-hidden-render');
-        const { height } = this.getPageDimensions();
-        const contentEl = document.querySelector('.book-page-content');
-        if (!contentEl) return [html];
-
-        const style = getComputedStyle(contentEl);
-        const paddingTop = parseFloat(style.paddingTop);
-        const paddingBottom = parseFloat(style.paddingBottom);
-        const availableHeight = height - paddingTop - paddingBottom;
-
-        hidden.innerHTML = html;
-
-        const pages = [];
-        let currentPageHtml = '';
-        let currentHeight = 0;
-
-        const children = Array.from(hidden.children);
-
-        for (const node of children) {
-            const clone = node.cloneNode(true);
-            const measurer = document.createElement('div');
-            measurer.style.position = 'absolute';
-            measurer.style.visibility = 'hidden';
-            measurer.style.width = hidden.style.width;
-            measurer.appendChild(clone);
-            document.body.appendChild(measurer);
-            const nodeHeight = measurer.getBoundingClientRect().height;
-            document.body.removeChild(measurer);
-
-            if (currentHeight + nodeHeight > availableHeight && currentPageHtml !== '') {
-                pages.push(currentPageHtml);
-                currentPageHtml = '';
-                currentHeight = 0;
-            }
-
-            currentPageHtml += node.outerHTML;
-            currentHeight += nodeHeight;
-        }
-
-        if (currentPageHtml !== '') {
-            pages.push(currentPageHtml);
-        }
-
-        hidden.innerHTML = '';
-        return pages.length > 0 ? pages : [html];
-    }
-
-    render(direction = null) {
-        const leftEl = document.getElementById('page-content-left');
-        const rightEl = document.getElementById('page-content-right');
-        const pageNumLeft = document.getElementById('page-num-left');
-        const pageNumRight = document.getElementById('page-num-right');
-
-        const currentPages = this.pages[this.currentMd] || [''];
-
-        if (this.isDouble) {
-            const rightContent = currentPages[this.currentPage] || '';
-            const leftContent = this.currentPage > 0
-                ? currentPages[this.currentPage - 1] || ''
-                : this.getPrevPageContent();
-
-            leftEl.innerHTML = leftContent;
-            rightEl.innerHTML = rightContent;
-
-            pageNumLeft.textContent = leftContent
-                ? this.getGlobalPageNumber(this.currentMd, Math.max(0, this.currentPage - 1))
-                : '';
-            pageNumRight.textContent = this.getGlobalPageNumber(this.currentMd, this.currentPage);
+        if (this.history.length > 0) {
+            const prev = this.history[this.history.length - 1];
+            backBtn.style.display = 'flex';
+            backSep.style.display = 'block';
+            backLabel.textContent = prev.title;
         } else {
-            leftEl.innerHTML = '';
-            rightEl.innerHTML = currentPages[this.currentPage] || '';
-            pageNumLeft.textContent = '';
-            pageNumRight.textContent = this.getGlobalPageNumber(this.currentMd, this.currentPage);
+            backBtn.style.display = 'none';
+            backSep.style.display = 'none';
         }
-
-        document.getElementById('nav-prev').disabled = this.isFirst();
-        document.getElementById('nav-next').disabled = this.isLast();
 
         this.updateTocActive();
     }
 
-    getPrevPageContent() {
-        if (this.currentMd === 0) return '';
-        const prevPages = this.pages[this.currentMd - 1];
-        if (!prevPages) return '';
-        return prevPages[prevPages.length - 1] || '';
+    updateFooter() {
+        const num = document.getElementById('page-num');
+        const prevBtn = document.getElementById('nav-prev');
+        const nextBtn = document.getElementById('nav-next');
+
+        const isFirst = this.currentIdx === -1;
+        const isLast = this.currentIdx >= this.flat.length - 1;
+
+        num.textContent = this.currentIdx === -1 ? '' : this.currentIdx + 1;
+
+        prevBtn.style.visibility = isFirst ? 'hidden' : 'visible';
+        nextBtn.style.visibility = isLast ? 'hidden' : 'visible';
     }
 
-    getGlobalPageNumber(mdIndex, pageIndex) {
-        let count = 1;
-        for (let i = 0; i < mdIndex; i++) {
-            count += (this.pages[i] || []).length;
-        }
-        count += pageIndex;
-        return count;
-    }
-
-    isFirst() {
-        return this.currentMd === 0 && this.currentPage === 0;
-    }
-
-    isLast() {
-        const pages = this.pages[this.currentMd] || [];
-        return this.currentMd === this.flat.length - 1 && this.currentPage >= pages.length - 1;
-    }
-
-    async navigatePage(direction) {
+    async navigateTo(idx, addHistory = true) {
         if (this.isAnimating) return;
+        this.isAnimating = true;
+
+        const direction = idx > this.currentIdx ? 1 : -1;
+
+        if (addHistory) {
+            const currentTitle = this.currentIdx === -1
+                ? 'Inhaltsverzeichnis'
+                : this.flat[this.currentIdx]?.title || '';
+            this.history.push({ title: currentTitle, idx: this.currentIdx });
+        }
+
+        this.currentIdx = idx;
+        await this.animateOut(direction);
+
+        if (idx === -1) {
+            window.location.href = '/';
+            return;
+        }
+
+        const slug = this.flat[idx].slug;
+        const res = await fetch(`/api/page/${slug}`);
+        const data = await res.json();
+
+        const content = document.getElementById('page-content');
+        content.innerHTML = `<article class="wiki-page"><h1>${data.title}</h1><div class="wiki-content">${data.content}</div></article>`;
+        content.scrollTop = 0;
+
+        window.history.pushState({ idx }, '', `/${slug}`);
+
+        await this.animateIn(direction);
+
+        this.updateHeader();
+        this.updateFooter();
+    }
+
+    async navigateBack() {
+        if (this.history.length === 0) return;
+        const prev = this.history.pop();
+        await this.navigateTo(prev.idx, false);
+    }
+
+    navigate(count, direction) {
+        if (count === 1) {
+            const newIdx = this.currentIdx + direction;
+            if (newIdx < -1 || newIdx >= this.flat.length) return;
+            this.navigateTo(newIdx);
+        } else if (count === 2) {
+            this.navigateSubchapter(direction);
+        } else if (count >= 3) {
+            this.navigateChapter(direction);
+        }
+    }
+
+    navigateSubchapter(direction) {
+        if (this.currentIdx === -1) {
+            if (direction > 0) this.navigateTo(0);
+            return;
+        }
+        const currentPath = this.flat[this.currentIdx]?.subchapter_path;
 
         if (direction > 0) {
-            const pages = this.pages[this.currentMd] || [];
-            if (this.currentPage < pages.length - 1) {
-                this.currentPage++;
-            } else if (this.currentMd < this.flat.length - 1) {
-                this.currentMd++;
-                this.currentPage = 0;
-                await this.loadMd(this.currentMd);
-                if (this.currentMd + 1 < this.flat.length) this.loadMd(this.currentMd + 1);
-            } else {
-                return;
+            for (let i = this.currentIdx + 1; i < this.flat.length; i++) {
+                if (this.flat[i].subchapter_path !== currentPath) {
+                    this.navigateTo(i);
+                    return;
+                }
             }
         } else {
-            if (this.currentPage > 0) {
-                this.currentPage--;
-            } else if (this.currentMd > 0) {
-                this.currentMd--;
-                await this.loadMd(this.currentMd);
-                this.currentPage = (this.pages[this.currentMd] || []).length - 1;
-            } else {
+            for (let i = this.currentIdx - 1; i >= 0; i--) {
+                if (this.flat[i].subchapter_path !== currentPath) {
+                    const targetPath = this.flat[i].subchapter_path;
+                    let first = i;
+                    while (first > 0 && this.flat[first - 1].subchapter_path === targetPath) first--;
+                    this.navigateTo(first);
+                    return;
+                }
+            }
+            this.navigateTo(-1);
+        }
+    }
+
+    navigateChapter(direction) {
+        if (this.currentIdx === -1) {
+            if (direction > 0 && this.flat.length > 0) this.navigateTo(0);
+            return;
+        }
+        const currentChapter = this.flat[this.currentIdx]?.chapter_idx ?? 0;
+
+        if (direction > 0) {
+            for (let i = this.currentIdx + 1; i < this.flat.length; i++) {
+                if (this.flat[i].chapter_idx !== currentChapter) {
+                    this.navigateTo(i);
+                    return;
+                }
+            }
+        } else {
+            const prevChapter = currentChapter - 1;
+            if (prevChapter < 0) {
+                this.navigateTo(-1);
                 return;
             }
-        }
-
-        this.animate(direction);
-        this.render(direction);
-    }
-
-    async navigateMd(direction) {
-        if (this.isAnimating) return;
-        const newMd = this.currentMd + direction;
-        if (newMd < 0 || newMd >= this.flat.length) return;
-        this.currentMd = newMd;
-        this.currentPage = 0;
-        await this.loadMd(this.currentMd);
-        this.animate(direction);
-        this.render(direction);
-    }
-
-    async navigateChapter(direction) {
-        if (this.isAnimating) return;
-        const currentSlug = this.flat[this.currentMd]?.slug;
-        const currentChapterIndex = this.getChapterIndexForSlug(currentSlug);
-        const targetChapterIndex = currentChapterIndex + direction;
-        const targetSlug = this.getFirstSlugInChapter(targetChapterIndex);
-        if (!targetSlug) return;
-        const targetMdIndex = this.flat.findIndex(p => p.slug === targetSlug);
-        if (targetMdIndex === -1) return;
-        this.currentMd = targetMdIndex;
-        this.currentPage = 0;
-        await this.loadMd(this.currentMd);
-        this.animate(direction);
-        this.render(direction);
-    }
-
-    getChapterIndexForSlug(slug) {
-        for (let i = 0; i < this.toc.length; i++) {
-            if (this.chapterContainsSlug(this.toc[i], slug)) return i;
-        }
-        return 0;
-    }
-
-    chapterContainsSlug(chapter, slug) {
-        if (chapter.pages) {
-            for (const p of chapter.pages) {
-                if (p.slug === slug) return true;
+            for (let i = 0; i < this.flat.length; i++) {
+                if (this.flat[i].chapter_idx === prevChapter) {
+                    this.navigateTo(i);
+                    return;
+                }
             }
+            this.navigateTo(-1);
         }
-        if (chapter.children) {
-            for (const child of chapter.children) {
-                if (this.chapterContainsSlug(child, slug)) return true;
-            }
-        }
-        return false;
     }
 
-    getFirstSlugInChapter(chapterIndex) {
-        const chapter = this.toc[chapterIndex];
-        if (!chapter) return null;
-        return this.getFirstSlugInNode(chapter);
-    }
-
-    getFirstSlugInNode(node) {
-        if (node.pages && node.pages.length > 0) return node.pages[0].slug;
-        if (node.children) {
-            for (const child of node.children) {
-                const slug = this.getFirstSlugInNode(child);
-                if (slug) return slug;
-            }
-        }
-        return null;
-    }
-
-    animate(direction) {
-        this.isAnimating = true;
-        const rightEl = document.getElementById('book-right');
-        const leftEl = document.getElementById('book-left');
-
-        const outClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
-        const inClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
-
-        [rightEl, ...(this.isDouble ? [leftEl] : [])].forEach(el => {
-            el.classList.add(outClass);
+    animateOut(direction) {
+        return new Promise(resolve => {
+            const page = document.getElementById('book-page');
+            const cls = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+            page.classList.add(cls);
             setTimeout(() => {
-                el.classList.remove(outClass);
-                el.classList.add(inClass);
-                setTimeout(() => {
-                    el.classList.remove(inClass);
-                    this.isAnimating = false;
-                }, 180);
+                page.classList.remove(cls);
+                resolve();
             }, 180);
         });
     }
 
-    async navigateTo(slug) {
-        const mdIndex = this.flat.findIndex(p => p.slug === slug);
-        if (mdIndex === -1) return;
-        this.currentMd = mdIndex;
-        this.currentPage = 0;
-        await this.loadMd(this.currentMd);
-        this.render();
-        document.getElementById('toc-dropdown').hidden = true;
+    animateIn(direction) {
+        return new Promise(resolve => {
+            const page = document.getElementById('book-page');
+            const cls = direction > 0 ? 'slide-in-right' : 'slide-in-left';
+            page.classList.add(cls);
+            setTimeout(() => {
+                page.classList.remove(cls);
+                this.isAnimating = false;
+                resolve();
+            }, 180);
+        });
     }
 
     buildTocDropdown() {
         const inner = document.getElementById('toc-dropdown-inner');
         inner.innerHTML = '';
 
+        // Inhaltsverzeichnis Link
+        const homeDiv = document.createElement('div');
+        homeDiv.className = 'toc-home';
+        const homeA = document.createElement('a');
+        homeA.textContent = 'Inhaltsverzeichnis';
+        homeA.href = '/';
+        homeA.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.navigateTo(-1);
+            document.getElementById('toc-dropdown').hidden = true;
+        });
+        homeDiv.appendChild(homeA);
+        inner.appendChild(homeDiv);
+
         const renderNode = (node, depth) => {
             const div = document.createElement('div');
-            div.className = `chapter toc-depth-${depth}`;
+            div.className = `toc-node toc-depth-${depth}`;
 
-            const title = document.createElement('div');
-            title.className = 'chapter-title';
-            title.textContent = node.title;
-            div.appendChild(title);
+            const header = document.createElement('div');
+            header.className = 'toc-node-header';
 
-            if (node.pages) {
+            const titleEl = document.createElement('span');
+            titleEl.className = 'toc-node-title';
+            titleEl.textContent = node.title;
+            header.appendChild(titleEl);
+
+            const hasChildren = node.children && node.children.length > 0;
+            const hasPages = node.pages && node.pages.length > 0;
+
+            if (hasChildren || hasPages) {
+                const toggle = document.createElement('button');
+                toggle.className = 'toc-collapse-btn';
+                toggle.innerHTML = '&#9660;';
+                toggle.setAttribute('aria-label', 'Ein-/Ausklappen');
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isCollapsed = div.classList.toggle('collapsed');
+                    toggle.innerHTML = isCollapsed ? '&#9658;' : '&#9660;';
+                });
+                header.appendChild(toggle);
+            }
+
+            div.appendChild(header);
+
+            if (hasPages) {
                 const ul = document.createElement('ul');
+                ul.className = 'toc-page-list';
                 for (const page of node.pages) {
                     const li = document.createElement('li');
                     const a = document.createElement('a');
@@ -338,7 +260,9 @@ class BookEngine {
                     a.dataset.slug = page.slug;
                     a.addEventListener('click', (e) => {
                         e.preventDefault();
-                        this.navigateTo(page.slug);
+                        const idx = this.flat.findIndex(p => p.slug === page.slug);
+                        if (idx >= 0) this.navigateTo(idx);
+                        document.getElementById('toc-dropdown').hidden = true;
                     });
                     li.appendChild(a);
                     ul.appendChild(li);
@@ -346,10 +270,13 @@ class BookEngine {
                 div.appendChild(ul);
             }
 
-            if (node.children) {
+            if (hasChildren) {
+                const childContainer = document.createElement('div');
+                childContainer.className = 'toc-children';
                 for (const child of node.children) {
-                    div.appendChild(renderNode(child, depth + 1));
+                    childContainer.appendChild(renderNode(child, depth + 1));
                 }
+                div.appendChild(childContainer);
             }
 
             return div;
@@ -361,29 +288,41 @@ class BookEngine {
     }
 
     updateTocActive() {
-        const currentSlug = this.flat[this.currentMd]?.slug;
-        document.querySelectorAll('.toc-dropdown a').forEach(a => {
+        const currentSlug = this.currentIdx >= 0 ? this.flat[this.currentIdx]?.slug : null;
+        document.querySelectorAll('.toc-page-list a[data-slug]').forEach(a => {
             a.classList.toggle('active', a.dataset.slug === currentSlug);
         });
     }
 
     setupEvents() {
-        document.getElementById('nav-prev').addEventListener('click', () => this.navigatePage(-1));
-        document.getElementById('nav-next').addEventListener('click', () => this.navigatePage(1));
+        document.getElementById('nav-prev').addEventListener('click', () => this.navigate(1, -1));
+        document.getElementById('nav-next').addEventListener('click', () => this.navigate(1, 1));
+        document.getElementById('back-btn').addEventListener('click', () => this.navigateBack());
 
         const tocBtn = document.getElementById('toc-toggle');
         const tocDropdown = document.getElementById('toc-dropdown');
+
         tocBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            tocDropdown.hidden = !tocDropdown.hidden;
+            const isHidden = tocDropdown.hidden;
+            tocDropdown.hidden = !isHidden;
+            if (!tocDropdown.hidden) {
+                const headerRect = document.getElementById('book-header').getBoundingClientRect();
+                tocDropdown.style.top = headerRect.bottom + 'px';
+                tocDropdown.style.maxHeight = (window.innerHeight - headerRect.bottom) + 'px';
+                requestAnimationFrame(() => {
+                    tocDropdown.scrollTop = 0;
+                });
+            }
         });
-        document.addEventListener('click', () => { tocDropdown.hidden = true; });
+
         tocDropdown.addEventListener('click', (e) => e.stopPropagation());
 
         document.getElementById('book-stage').addEventListener('click', (e) => {
             if (e.target.closest('#toc-dropdown')) return;
             if (e.target.closest('.nav-arrow')) return;
             if (e.target.closest('#toc-toggle')) return;
+            if (e.target.closest('#back-btn')) return;
             if (e.target.closest('a')) return;
 
             this.clickCount++;
@@ -393,10 +332,8 @@ class BookEngine {
                 this.clickCount = 0;
                 const rect = document.getElementById('book-stage').getBoundingClientRect();
                 const direction = e.clientX > rect.left + rect.width / 2 ? 1 : -1;
-                if (count === 1) this.navigatePage(direction);
-                else if (count === 2) this.navigateMd(direction);
-                else if (count >= 3) this.navigateChapter(direction);
-            }, 250);
+                this.navigate(count, direction);
+            }, 300);
         });
 
         document.addEventListener('keydown', (e) => {
@@ -413,10 +350,8 @@ class BookEngine {
             this.keyTimer = setTimeout(() => {
                 const count = this.keyPressCount;
                 this.keyPressCount = 0;
-                if (count === 1) this.navigatePage(direction);
-                else if (count === 2) this.navigateMd(direction);
-                else if (count >= 3) this.navigateChapter(direction);
-            }, 300);
+                this.navigate(count, direction);
+            }, 350);
         });
 
         let touchStartX = 0;
@@ -435,20 +370,26 @@ class BookEngine {
             const dx = e.changedTouches[0].clientX - touchStartX;
             const dy = e.changedTouches[0].clientY - touchStartY;
             const dt = Date.now() - touchStartTime;
-            if (Math.abs(dx) < 30 || Math.abs(dx) < Math.abs(dy) || dt > 500) return;
+            if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) || dt > 600) return;
             const direction = dx < 0 ? 1 : -1;
-            if (touchCount === 1) this.navigatePage(direction);
-            else if (touchCount === 2) this.navigateMd(direction);
-            else if (touchCount >= 3) this.navigateChapter(direction);
+            this.navigate(touchCount, direction);
         }, { passive: true });
 
-        window.addEventListener('resize', async () => {
-            const wasDouble = this.isDouble;
-            this.updateLayout();
-            this.setupHiddenRender();
-            this.pages = [];
-            await this.loadMd(this.currentMd);
-            this.render();
+        window.addEventListener('popstate', async (e) => {
+            if (e.state !== null && e.state.idx !== undefined) {
+                this.currentIdx = e.state.idx;
+                if (this.currentIdx >= 0) {
+                    const slug = this.flat[this.currentIdx]?.slug;
+                    if (slug) {
+                        const res = await fetch(`/api/page/${slug}`);
+                        const data = await res.json();
+                        document.getElementById('page-content').innerHTML =
+                            `<article class="wiki-page"><h1>${data.title}</h1><div class="wiki-content">${data.content}</div></article>`;
+                        this.updateHeader();
+                        this.updateFooter();
+                    }
+                }
+            }
         });
     }
 }

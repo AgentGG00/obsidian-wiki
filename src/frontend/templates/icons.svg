@@ -47,4 +47,12 @@
     <ellipse cx="32" cy="51" rx="6" ry="4" fill="currentColor"/>
   </symbol>
 
+  <symbol id="icon-arrow-left" viewBox="0 0 32 48" fill="none">
+    <path d="M0 24L32 0L26 24L32 48L0 24Z" fill="currentColor"/>
+  </symbol>
+
+  <symbol id="icon-arrow-right" viewBox="0 0 32 48" fill="none">
+    <path d="M32 24L0 0L6 24L0 48L32 24Z" fill="currentColor"/>
+  </symbol>
+
 </svg>

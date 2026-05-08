@@ -23,15 +23,22 @@
 
         <header id="book-header">
             <div class="book-header-left">
-                <button id="toc-toggle" aria-label="Inhaltsverzeichnis">
-                    <span>Inhalt</span>
-                    <svg class="nav-icon" aria-hidden="true">
-                        <use href="#icon-{{ vault_icon }}"/>
-                    </svg>
+                <button id="back-btn" class="header-btn back-btn" aria-label="Zurück" style="display:none">
+                    <svg aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+                    <span id="back-label">Zurück</span>
                 </button>
-                <nav id="toc-dropdown" class="toc-dropdown" hidden>
-                    <div id="toc-dropdown-inner"></div>
-                </nav>
+                <div class="header-separator" id="back-separator" style="display:none"></div>
+                <div class="toc-wrapper">
+                    <button id="toc-toggle" class="header-btn" aria-label="Inhaltsverzeichnis">
+                        <svg class="nav-icon" aria-hidden="true">
+                            <use href="#icon-{{ vault_icon }}"/>
+                        </svg>
+                        <span>Inhalt</span>
+                    </button>
+                    <nav id="toc-dropdown" class="toc-dropdown" hidden>
+                        <div id="toc-dropdown-inner"></div>
+                    </nav>
+                </div>
             </div>
             <div class="book-header-right">
                 <button id="theme-toggle" aria-label="Theme wechseln">
@@ -43,35 +50,32 @@
         </header>
 
         <div id="book-stage">
-            <div id="book-left" class="book-page">
-                <div class="book-page-content" id="page-content-left"></div>
-            </div>
-            <div id="book-gutter"></div>
-            <div id="book-right" class="book-page">
-                <div class="book-page-content" id="page-content-right"></div>
+            <div id="book-page" class="book-page">
+                <div class="book-page-content" id="page-content">
+                    {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
 
         <footer id="book-footer">
             <div class="book-footer-left">
-                <button id="nav-prev" class="nav-arrow" aria-label="Zurück">←</button>
-                <span id="page-num-left" class="page-number"></span>
+                <button id="nav-prev" class="nav-arrow" aria-label="Zurück">
+                    <svg aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+                </button>
             </div>
             <div class="book-footer-center">
                 <span class="footer-campaign">{{ campaign_name }}</span>
                 <a href="/datenschutz" class="footer-link">Datenschutz</a>
             </div>
             <div class="book-footer-right">
-                <span id="page-num-right" class="page-number"></span>
-                <button id="nav-next" class="nav-arrow" aria-label="Vor">→</button>
+                <span id="page-num" class="page-number"></span>
+                <button id="nav-next" class="nav-arrow" aria-label="Vor">
+                    <svg aria-hidden="true"><use href="#icon-arrow-right"/></svg>
+                </button>
             </div>
         </footer>
 
     </div>
-
-    <div id="book-hidden-render" aria-hidden="true"></div>
-
-    {% block content %}{% endblock %}
 
     <script src="/static/book.js"></script>
 
