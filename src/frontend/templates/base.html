@@ -11,37 +11,69 @@
     </script>
     <title>{% block title %}Wiki{% endblock %} – {{ campaign_name }}</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/book.css">
 </head>
-<body class="{{ vault_name }}">
+<body class="{{ vault_name }}"
+      data-campaign="{{ campaign_name }}"
+      data-vault-icon="{{ vault_icon }}">
 
     {% include "icons.svg" %}
 
-    <nav>
-        <a href="/" class="nav-logo">
-            <svg class="nav-icon" aria-hidden="true">
-                <use href="#icon-{{ vault_icon }}"/>
-            </svg>
-            {{ campaign_name | upper }}
-        </a>
-        <div class="nav-actions">
-            <button id="theme-toggle" aria-label="Theme wechseln">
-                <svg class="theme-icon" aria-hidden="true">
-                    <use id="theme-icon-use" href="#icon-sun"/>
-                </svg>
-            </button>
+    <div id="book-root">
+
+        <header id="book-header">
+            <div class="book-header-left">
+                <button id="toc-toggle" aria-label="Inhaltsverzeichnis">
+                    <span>Inhalt</span>
+                    <svg class="nav-icon" aria-hidden="true">
+                        <use href="#icon-{{ vault_icon }}"/>
+                    </svg>
+                </button>
+                <nav id="toc-dropdown" class="toc-dropdown" hidden>
+                    <div id="toc-dropdown-inner"></div>
+                </nav>
+            </div>
+            <div class="book-header-right">
+                <button id="theme-toggle" aria-label="Theme wechseln">
+                    <svg class="theme-icon" aria-hidden="true">
+                        <use id="theme-icon-use" href="#icon-sun"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div id="book-stage">
+            <div id="book-left" class="book-page">
+                <div class="book-page-content" id="page-content-left"></div>
+            </div>
+            <div id="book-gutter"></div>
+            <div id="book-right" class="book-page">
+                <div class="book-page-content" id="page-content-right"></div>
+            </div>
         </div>
-    </nav>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+        <footer id="book-footer">
+            <div class="book-footer-left">
+                <button id="nav-prev" class="nav-arrow" aria-label="Zurück">←</button>
+                <span id="page-num-left" class="page-number"></span>
+            </div>
+            <div class="book-footer-center">
+                <span class="footer-campaign">{{ campaign_name }}</span>
+                <a href="/datenschutz" class="footer-link">Datenschutz</a>
+            </div>
+            <div class="book-footer-right">
+                <span id="page-num-right" class="page-number"></span>
+                <button id="nav-next" class="nav-arrow" aria-label="Vor">→</button>
+            </div>
+        </footer>
 
-    <footer>
-        <span>{{ campaign_name }}</span>
-        <a href="/datenschutz">Datenschutz</a>
-    </footer>
+    </div>
 
-    <script src="/static/script.js"></script>
+    <div id="book-hidden-render" aria-hidden="true"></div>
+
+    {% block content %}{% endblock %}
+
+    <script src="/static/book.js"></script>
 
 </body>
 </html>

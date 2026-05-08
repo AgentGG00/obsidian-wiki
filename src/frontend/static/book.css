@@ -1,0 +1,414 @@
+/* ============================================================
+   BOOK LAYOUT – GRUNDSTRUKTUR
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+#book-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--bg);
+}
+
+
+/* ============================================================
+   BOOK HEADER
+   ============================================================ */
+
+#book-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 2.75rem;
+    padding: 0 var(--space-lg);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.book-header-left,
+.book-header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+#toc-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius);
+    transition: background-color var(--transition);
+}
+
+#toc-toggle:hover {
+    background-color: var(--bg-tertiary);
+}
+
+#toc-toggle .nav-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.toc-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 320px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-top: none;
+    box-shadow: 4px 4px 16px var(--shadow);
+    z-index: 200;
+    padding: var(--space-md);
+}
+
+.toc-dropdown[hidden] {
+    display: none;
+}
+
+.toc-dropdown .chapter {
+    margin-bottom: var(--space-md);
+}
+
+.toc-dropdown .chapter-title {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: var(--space-xs);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--border);
+}
+
+.toc-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-dropdown li a {
+    display: block;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius);
+    transition: background-color var(--transition), color var(--transition);
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.toc-dropdown li a:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.toc-dropdown li a.active {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.toc-depth-1 {
+    padding-left: var(--space-md);
+}
+
+.toc-depth-2 {
+    padding-left: var(--space-xl);
+}
+
+#theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    cursor: pointer;
+    background: none;
+    color: var(--accent);
+    transition: background-color var(--transition), color var(--transition);
+    min-width: 2.25rem;
+    height: 1.6rem;
+}
+
+#theme-toggle:hover {
+    background-color: var(--accent);
+    color: var(--accent-text);
+}
+
+.theme-icon {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+}
+
+
+/* ============================================================
+   BOOK STAGE
+   ============================================================ */
+
+#book-stage {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.book-page {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--bg);
+}
+
+.book-page-content {
+    height: 100%;
+    overflow: hidden;
+    padding: var(--space-xl) var(--space-xl);
+    font-family: var(--font-body);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height);
+    color: var(--text);
+}
+
+#book-gutter {
+    width: 2px;
+    background-color: var(--border);
+    flex-shrink: 0;
+}
+
+/* Einzelseiten-Modus: linke Seite versteckt */
+body.single-page #book-left,
+body.single-page #book-gutter {
+    display: none;
+}
+
+body.single-page #book-right {
+    flex: 1;
+}
+
+
+/* ============================================================
+   PAGE TRANSITION ANIMATION
+   ============================================================ */
+
+#book-stage {
+    transition: transform 0.18s ease;
+}
+
+.book-page.slide-out-left {
+    animation: slideOutLeft 0.18s ease forwards;
+}
+
+.book-page.slide-in-right {
+    animation: slideInRight 0.18s ease forwards;
+}
+
+.book-page.slide-out-right {
+    animation: slideOutRight 0.18s ease forwards;
+}
+
+.book-page.slide-in-left {
+    animation: slideInLeft 0.18s ease forwards;
+}
+
+@keyframes slideOutLeft {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(-3%); opacity: 0; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(3%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to   { transform: translateX(3%); opacity: 0; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-3%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+
+/* ============================================================
+   BOOK FOOTER
+   ============================================================ */
+
+#book-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 2.5rem;
+    padding: 0 var(--space-lg);
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.book-footer-left,
+.book-footer-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: 120px;
+}
+
+.book-footer-right {
+    justify-content: flex-end;
+}
+
+.book-footer-center {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+/* Im Einzelseiten-Modus immer sichtbar */
+/* Im Doppelseiten-Modus nur rechte Seite */
+body.double-page .book-footer-center {
+    padding-left: 50%;
+}
+
+.footer-campaign {
+    color: var(--text-muted);
+}
+
+.footer-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    transition: color var(--transition);
+}
+
+.footer-link:hover {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.nav-arrow {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 1.1rem;
+    padding: var(--space-xs);
+    border-radius: var(--radius);
+    transition: background-color var(--transition), color var(--transition);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 1.8rem;
+}
+
+.nav-arrow:hover {
+    background-color: var(--accent);
+    color: var(--accent-text);
+}
+
+.nav-arrow:disabled {
+    color: var(--border);
+    cursor: default;
+    background: none;
+}
+
+.page-number {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    min-width: 2rem;
+    text-align: center;
+}
+
+
+/* ============================================================
+   HIDDEN RENDER CONTAINER
+   ============================================================ */
+
+#book-hidden-render {
+    position: fixed;
+    top: 0;
+    left: -9999px;
+    visibility: hidden;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   RESPONSIVE – SINGLE VS DOUBLE PAGE
+   ============================================================ */
+
+/* Mobile Portrait: Einzelseite */
+@media (max-width: 767px),
+       (max-width: 1023px) and (orientation: portrait) {
+    body:not(.layout-ready) #book-left,
+    body:not(.layout-ready) #book-gutter {
+        display: none;
+    }
+}
+
+/* Tablet Landscape + Desktop: Doppelseite */
+@media (min-width: 768px) and (orientation: landscape),
+       (min-width: 1024px) {
+    #book-footer .book-footer-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    #book-footer {
+        position: relative;
+    }
+}
+
+/* Kleine Schrift auf Mobile */
+@media (max-width: 480px) {
+    .book-page-content {
+        padding: var(--space-lg) var(--space-md);
+        font-size: 0.9rem;
+    }
+
+    #book-header,
+    #book-footer {
+        padding: 0 var(--space-md);
+    }
+}
