@@ -5,46 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
         (function() {
-            const k1 = document.cookie.includes("cookie_consent_k1=true");
-            const theme = (k1 ? localStorage.getItem("theme") : null)
-                || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            const theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
             document.documentElement.setAttribute("data-theme", theme);
         })();
     </script>
     <title>{% block title %}Wiki{% endblock %} – {{ campaign_name }}</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/book.css">
 </head>
-<body class="{{ vault_name }}">
+<body class="{{ vault_name }}"
+      data-campaign="{{ campaign_name }}"
+      data-vault-icon="{{ vault_icon }}">
 
-    {% include "cookie-banner.html" %}
     {% include "icons.svg" %}
 
-    <nav>
-        <a href="/" class="nav-logo">
-            <svg class="nav-icon" aria-hidden="true">
-                <use href="#icon-{{ vault_icon }}"/>
-            </svg>
-            {{ campaign_name | upper }}
-        </a>
-        <div class="nav-actions">
-            <button id="theme-toggle" aria-label="Theme wechseln">
-                <svg class="theme-icon" aria-hidden="true">
-                    <use id="theme-icon-use" href="#icon-sun"/>
-                </svg>
-            </button>
+    <div id="book-root">
+
+        <header id="book-header">
+            <div class="book-header-left">
+                <button id="back-btn" class="header-btn back-btn" aria-label="Zurück" style="display:none">
+                    <svg aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+                    <span id="back-label">Zurück</span>
+                </button>
+                <div class="header-separator" id="back-separator" style="display:none"></div>
+                <div class="toc-wrapper">
+                    <button id="toc-toggle" class="header-btn" aria-label="Inhaltsverzeichnis">
+                        <svg class="nav-icon" aria-hidden="true">
+                            <use href="#icon-{{ vault_icon }}"/>
+                        </svg>
+                        <span>Inhalt</span>
+                    </button>
+                    <nav id="toc-dropdown" class="toc-dropdown" hidden>
+                        <div id="toc-dropdown-inner"></div>
+                    </nav>
+                </div>
+            </div>
+            <div class="book-header-right">
+                <button id="theme-toggle" aria-label="Theme wechseln">
+                    <svg class="theme-icon" aria-hidden="true">
+                        <use id="theme-icon-use" href="#icon-sun"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div id="book-stage">
+            <div id="book-page" class="book-page">
+                <div class="book-page-content" id="page-content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
         </div>
-    </nav>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+        <footer id="book-footer">
+            <div class="book-footer-left">
+                <button id="nav-prev" class="nav-arrow" aria-label="Zurück">
+                    <svg aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+                </button>
+            </div>
+            <div class="book-footer-center">
+                <span class="footer-campaign">{{ campaign_name }}</span>
+                <a href="/datenschutz" class="footer-link">Datenschutz</a>
+            </div>
+            <div class="book-footer-right">
+                <span id="page-num" class="page-number"></span>
+                <button id="nav-next" class="nav-arrow" aria-label="Vor">
+                    <svg aria-hidden="true"><use href="#icon-arrow-right"/></svg>
+                </button>
+            </div>
+        </footer>
 
-    <footer>
-        <span>{{ campaign_name }}</span>
-        <a href="/datenschutz">Datenschutz</a>
-    </footer>
+    </div>
 
-    <script src="/static/script.js"></script>
+    <script src="/static/book.js"></script>
 
 </body>
 </html>

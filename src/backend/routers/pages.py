@@ -1,48 +1,27 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from httpx import request
-from pydantic import BaseModel
 from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
-from ..comments import get_comments, add_comment, edit_comment, delete_comment, generate_author_token
-from ..parser import parse_page, get_visibility
+from ..parser import parse_page, get_visibility, parse_toc, flatten_toc
 
 router = APIRouter()
 
 
-class CommentIn(BaseModel):
-    author_name: str
-    content: str
-    parent_id: int | None = None
-
-def build_comment_tree(comments: list) -> list:
-    by_id = {c["id"]: {**c, "replies": []} for c in comments}
-    roots = []
-    for c in comments:
-        if c["parent_id"] is None:
-            roots.append(by_id[c["id"]])
-        elif c["parent_id"] in by_id:
-            by_id[c["parent_id"]]["replies"].append(by_id[c["id"]])
-    return roots
-
 @router.get("/")
 async def index(request: Request):
     vault_path = get_vault_path(request)
-    pages = []
-
-    for file in vault_path.glob("*.md"):
-        if get_visibility(str(file)) == "dm-only":
-            continue
-        pages.append({
-            "slug": file.stem,
-            "title": file.stem.replace("-", " ").title()
-        })
+    chapters = parse_toc(str(vault_path))
+    flat = flatten_toc(chapters, str(vault_path))
+    slug_to_num = {p["slug"]: i + 1 for i, p in enumerate(flat)}
 
     return templates.TemplateResponse(request=request, name="index.html", context={
-        "pages": pages,
+        "chapters": chapters,
+        "flat": flat,
+        "slug_to_num": slug_to_num,
         "vault_name": get_vault_theme(vault_path.name),
         "campaign_name": vault_path.name,
         "vault_icon": get_vault_icon(vault_path.name),
     })
+
 
 @router.get("/datenschutz")
 async def datenschutz(request: Request):
@@ -53,80 +32,58 @@ async def datenschutz(request: Request):
         "campaign_name": vault.name,
     })
 
+
+@router.get("/api/toc")
+async def api_toc(request: Request):
+    vault_path = get_vault_path(request)
+    chapters = parse_toc(str(vault_path))
+    flat = flatten_toc(chapters, str(vault_path))
+    return JSONResponse({"chapters": chapters, "flat": flat})
+
+
+@router.get("/api/page/{slug}")
+async def api_page(request: Request, slug: str):
+    vault = get_vault_path(request)
+    filepath = vault / f"{slug}.md"
+    if not filepath.exists():
+        filepath = next(vault.rglob(f"{slug}.md"), None)
+    if not filepath or not filepath.exists():
+        return JSONResponse({"error": "not found"}, status_code=404)
+    page_data = parse_page(str(filepath))
+    if page_data["visibility"] == "dm-only":
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return JSONResponse({
+        "slug": slug,
+        "title": page_data["title"],
+        "content": page_data["content"],
+    })
+
+
 @router.get("/{slug}")
 async def page(request: Request, slug: str):
     vault = get_vault_path(request)
     filepath = vault / f"{slug}.md"
-
     if not filepath.exists():
+        filepath = next(vault.rglob(f"{slug}.md"), None)
+    if not filepath or not filepath.exists():
         return templates.TemplateResponse(request=request, name="404.html", status_code=404, context={
             "vault_name": get_vault_theme(vault.name),
             "vault_icon": get_vault_icon(vault.name),
             "campaign_name": vault.name,
         })
-
     page_data = parse_page(str(filepath))
-    raw_comments = get_comments(vault.name, slug)
-    author_token = request.cookies.get("author_token")
-    owned_ids = [c["id"] for c in raw_comments if c.get("author_token") == author_token] if author_token else []
+    chapters = parse_toc(str(vault))
+    flat = flatten_toc(chapters, str(vault))
+    slugs = [p["slug"] for p in flat]
+    current_index = slugs.index(slug) if slug in slugs else -1
 
     return templates.TemplateResponse(request=request, name="page.html", context={
-        "title": slug.replace("-", " ").title(),
+        "title": page_data["title"],
         "content": page_data["content"],
-        "comments": build_comment_tree(raw_comments),
-        "owned_ids": owned_ids,
         "vault_name": get_vault_theme(vault.name),
         "campaign_name": vault.name,
         "vault_icon": get_vault_icon(vault.name),
+        "page_num": current_index + 1 if current_index >= 0 else 0,
+        "total_pages": len(flat),
+        "slug": slug,
     })
-
-
-@router.post("/comments/{slug}")
-async def post_comment(request: Request, slug: str, comment: CommentIn, response: Response):
-    vault = get_vault_path(request)
-    vault_name = vault.name
-
-    author_token = request.cookies.get("author_token") or generate_author_token()
-
-    new_comment = add_comment(
-        vault=vault_name,
-        page_slug=slug,
-        author_name=comment.author_name,
-        content=comment.content,
-        author_token=author_token,
-        parent_id=comment.parent_id
-    )
-
-    cookie_consent = request.cookies.get("cookie_consent_k2")
-    json_response = JSONResponse({"ok": True, "comment": new_comment})
-
-    if cookie_consent == "true":
-        json_response.set_cookie("author_token", author_token, max_age=60*60*24*365, httponly=True, samesite="lax")
-
-    return json_response
-
-
-@router.patch("/comments/{comment_id}")
-async def update_comment(request: Request, comment_id: int, comment: CommentIn):
-    author_token = request.cookies.get("author_token")
-    if not author_token:
-        return JSONResponse({"ok": False, "error": "Kein Autoren-Token"}, status_code=403)
-
-    success = edit_comment(comment_id, comment.content, author_token)
-    if not success:
-        return JSONResponse({"ok": False, "error": "Nicht autorisiert"}, status_code=403)
-
-    return JSONResponse({"ok": True})
-
-
-@router.delete("/comments/{comment_id}")
-async def remove_comment(request: Request, comment_id: int):
-    author_token = request.cookies.get("author_token")
-    if not author_token:
-        return JSONResponse({"ok": False, "error": "Kein Autoren-Token"}, status_code=403)
-
-    success = delete_comment(comment_id, author_token)
-    if not success:
-        return JSONResponse({"ok": False, "error": "Nicht autorisiert"}, status_code=403)
-
-    return JSONResponse({"ok": True})

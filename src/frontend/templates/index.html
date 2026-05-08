@@ -1,14 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Startseite{% endblock %}
+{% block title %}Inhaltsverzeichnis{% endblock %}
 
 {% block content %}
-<div class="page-list">
-    <h2>Alle Seiten</h2>
-    <ul>
-        {% for page in pages %}
-        <li><a href="/{{ page.slug }}">{{ page.title }}</a></li>
+
+{% macro render_chapter(chapter, depth) %}
+<div class="toc-chapter-section">
+    {% if depth == 0 %}
+    <h2 class="toc-h1">{{ chapter.title }}</h2>
+    {% elif depth == 1 %}
+    <h3 class="toc-h2">{{ chapter.title }}</h3>
+    {% else %}
+    <h4 class="toc-h3">{{ chapter.title }}</h4>
+    {% endif %}
+
+    {% if chapter.pages %}
+    <ul class="toc-pages">
+        {% for page in chapter.pages %}
+        <li class="toc-entry">
+            <a href="/{{ page.slug }}" class="toc-link">
+                <span class="toc-link-title">{{ page.title }}</span>
+                <span class="toc-dots"></span>
+                <span class="toc-num">{{ slug_to_num.get(page.slug, '') }}</span>
+            </a>
+        </li>
         {% endfor %}
     </ul>
+    {% endif %}
+
+    {% if chapter.children %}
+        {% for child in chapter.children %}
+            {{ render_chapter(child, depth + 1) }}
+        {% endfor %}
+    {% endif %}
+</div>
+{% endmacro %}
+
+<div class="toc-page">
+    <h1 class="toc-campaign-title">{{ campaign_name }}</h1>
+
+    {% for chapter in chapters %}
+    <section class="toc-chapter">
+        {{ render_chapter(chapter, 0) }}
+    </section>
+    {% if not loop.last %}
+    <hr class="toc-divider">
+    {% endif %}
+    {% endfor %}
 </div>
 {% endblock %}
