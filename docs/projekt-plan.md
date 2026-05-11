@@ -150,3 +150,26 @@ obsidian-wiki/
 - [ ] Name der dritten Kampagne (Domain: aktuell offen)
 - [ ] Design/Theme der Wiki-Oberfläche (dark Fantasy-Stil geplant)
 - [ ] Kommentare moderierbar durch DM (Phase 2)
+
+
+---
+
+## Änderungen nach Entwicklungsbeginn
+
+Nach fortgeschrittener Entwicklung und ersten Testläufen wurden folgende Entscheidungen revidiert:
+
+### Layout-Architektur
+
+Das ursprünglich geplante SSR-only-Layout (Jinja2, kein JavaScript) wurde durch ein **Book-Layout** ersetzt. Grund: Die seitenweise Navigation mit Animationen und dynamischem TOC-Dropdown lässt sich clientseitig erheblich besser umsetzen.
+
+- `BookEngine` (JS-Klasse) übernimmt Navigation, Seitenanimationen und TOC-Verwaltung
+- Seiteninhalte werden per `/api/page/{slug}` nachgeladen statt vollständig gerendert
+- Jinja2 bleibt für das initiale HTML-Gerüst (`base.html`, `index.html`) zuständig
+
+### Kommentarsystem
+
+Das geplante anonyme Kommentarsystem wurde **gestrichen**. Der Spielerkreis ist klein und kommuniziert direkt – ein öffentliches Kommentarsystem schafft Aufwand ohne Mehrwert.
+
+### Deployment
+
+Entgegen des ursprünglichen Plans wird **Docker Compose** statt reinem systemd eingesetzt. Vorteile: einfacheres Dependency-Management, sauberere Trennung vom Host-System, unkomplizierteres Update-Deployment über GitHub Actions.

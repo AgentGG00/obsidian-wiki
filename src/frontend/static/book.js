@@ -307,9 +307,6 @@ class BookEngine {
             const isHidden = tocDropdown.hidden;
             tocDropdown.hidden = !isHidden;
             if (!tocDropdown.hidden) {
-                const headerRect = document.getElementById('book-header').getBoundingClientRect();
-                tocDropdown.style.top = headerRect.bottom + 'px';
-                tocDropdown.style.maxHeight = (window.innerHeight - headerRect.bottom) + 'px';
                 requestAnimationFrame(() => {
                     tocDropdown.scrollTop = 0;
                 });
