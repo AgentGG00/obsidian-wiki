@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
 from ..parser import parse_page, get_visibility, parse_toc, flatten_toc
 from datetime import datetime
 from pathlib import Path
+import mimetypes
 
 router = APIRouter()
 
@@ -62,6 +63,14 @@ async def api_page(request: Request, slug: str):
         "content": page_data["content"],
     })
 
+@router.get("/api/img/{filename}")
+async def api_img(request: Request, filename: str):
+    vault = get_vault_path(request)
+    img_path = vault / "img" / filename
+    if not img_path.exists():
+        return JSONResponse({"error": "not found"}, status_code=404)
+    mime, _ = mimetypes.guess_type(str(img_path))
+    return FileResponse(img_path, media_type=mime or "application/octet-stream")
 
 @router.get("/{slug}")
 async def page(request: Request, slug: str):
