@@ -2,6 +2,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from ..dependencies import templates, get_vault_path, get_vault_theme, get_vault_icon
 from ..parser import parse_page, get_visibility, parse_toc, flatten_toc
+from datetime import datetime
+from pathlib import Path
 
 router = APIRouter()
 
@@ -86,4 +88,16 @@ async def page(request: Request, slug: str):
         "page_num": current_index + 1 if current_index >= 0 else 0,
         "total_pages": len(flat),
         "slug": slug,
+    })
+
+@router.get("/datenschutz")
+async def datenschutz(request: Request):
+    vault = get_vault_path(request)
+    template_path = Path("src/frontend/templates/datenschutz.html")
+    last_updated = datetime.fromtimestamp(template_path.stat().st_mtime).strftime("%d.%m.%Y")
+    return templates.TemplateResponse(request=request, name="datenschutz.html", context={
+        "vault_name": get_vault_theme(vault.name),
+        "vault_icon": get_vault_icon(vault.name),
+        "campaign_name": vault.name,
+        "last_updated": last_updated,
     })

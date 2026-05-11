@@ -25,9 +25,12 @@ def parse_callouts(content: str) -> str:
             while i < len(lines) and lines[i].startswith(">"):
                 inner_lines.append(lines[i][2:])
                 i += 1
-            line_count = max(len(inner_lines), 1)
             max_chars = max((len(l) for l in inner_lines), default=20)
-            result.append(f'<div class="callout-hidden" style="--lines:{line_count};--chars:{max_chars}"></div>')
+            line_divs = ''.join(
+                f'<div class="callout-hidden-line" style="--chars:{max_chars}"></div>'
+                for _ in inner_lines
+            )
+            result.append(f'<div class="callout-hidden-block">{line_divs}</div>')
             continue
 
         if line.startswith("> [!picture]"):
