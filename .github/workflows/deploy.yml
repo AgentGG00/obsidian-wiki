@@ -16,7 +16,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /var/www/obsidian-wiki
-            git fetch --tags
-            git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
+            git fetch --all --tags
+            git reset --hard $(git describe --tags `git rev-list --tags --max-count=1`)
             docker compose up -d --build
-           
