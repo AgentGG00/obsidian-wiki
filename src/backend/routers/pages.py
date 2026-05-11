@@ -24,6 +24,18 @@ async def index(request: Request):
         "vault_icon": get_vault_icon(vault_path.name),
     })
 
+@router.get("/datenschutz")
+async def datenschutz(request: Request):
+    vault = get_vault_path(request)
+    template_path = Path("src/frontend/templates/datenschutz.html")
+    last_updated = datetime.fromtimestamp(template_path.stat().st_mtime).strftime("%d.%m.%Y")
+    return templates.TemplateResponse(request=request, name="datenschutz.html", context={
+        "vault_name": get_vault_theme(vault.name),
+        "vault_icon": get_vault_icon(vault.name),
+        "campaign_name": vault.name,
+        "last_updated": last_updated,
+    })
+
 
 @router.get("/api/toc")
 async def api_toc(request: Request):
@@ -80,14 +92,3 @@ async def page(request: Request, slug: str):
         "slug": slug,
     })
 
-@router.get("/datenschutz")
-async def datenschutz(request: Request):
-    vault = get_vault_path(request)
-    template_path = Path("src/frontend/templates/datenschutz.html")
-    last_updated = datetime.fromtimestamp(template_path.stat().st_mtime).strftime("%d.%m.%Y")
-    return templates.TemplateResponse(request=request, name="datenschutz.html", context={
-        "vault_name": get_vault_theme(vault.name),
-        "vault_icon": get_vault_icon(vault.name),
-        "campaign_name": vault.name,
-        "last_updated": last_updated,
-    })
