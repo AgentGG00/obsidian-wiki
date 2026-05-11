@@ -25,16 +25,6 @@ async def index(request: Request):
     })
 
 
-@router.get("/datenschutz")
-async def datenschutz(request: Request):
-    vault = get_vault_path(request)
-    return templates.TemplateResponse(request=request, name="datenschutz.html", context={
-        "vault_name": get_vault_theme(vault.name),
-        "vault_icon": get_vault_icon(vault.name),
-        "campaign_name": vault.name,
-    })
-
-
 @router.get("/api/toc")
 async def api_toc(request: Request):
     vault_path = get_vault_path(request)
