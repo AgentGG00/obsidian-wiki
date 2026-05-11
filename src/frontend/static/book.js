@@ -392,8 +392,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.documentElement.setAttribute('data-theme', currentTheme);
         updateToggleLabel();
     });
-
+    
     updateToggleLabel();
+
+    if (window.location.pathname === '/datenschutz') {
+        const backBtn = document.getElementById('back-btn');
+        const backSep = document.getElementById('back-separator');
+        backBtn.style.display = 'flex';
+        backSep.style.display = 'block';
+        document.getElementById('back-label').textContent = 'Zurück';
+        backBtn.addEventListener('click', () => window.history.back());
+        return;
+    }
 
     const tocAvailable = await fetch('/api/toc').then(r => r.ok).catch(() => false);
     if (!tocAvailable) return;
