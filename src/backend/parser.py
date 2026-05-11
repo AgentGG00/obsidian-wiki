@@ -69,6 +69,12 @@ def parse_page(filepath: str) -> dict:
     content = parse_callouts(post.content)
     content_html = markdown.markdown(content, extensions=['tables'])
 
+    content_html = re.sub(
+        r'<img([^>]*) src="img/([^"]+)"',
+        r'<img\1 src="/api/img/\2"',
+        content_html
+    )
+
     return {
         "visibility": visibility,
         "title": title,
