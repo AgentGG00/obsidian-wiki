@@ -8,6 +8,10 @@ body {
     overflow: hidden;
 }
 
+:root {
+    --header-height: 2.75rem;
+}
+
 #book-root {
     display: flex;
     flex-direction: column;
@@ -25,7 +29,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 2.75rem;
+    height: var(--header-height);
     padding: 0 var(--space-lg);
     background-color: var(--bg-secondary);
     border-bottom: 2px solid var(--accent);
@@ -138,18 +142,21 @@ body {
 }
 
 .toc-dropdown {
+    display: block;
+    padding: 0;
+    border-bottom: none;
     position: fixed;
-    top: 0;
+    top: var(--header-height);
     left: 0;
-    width: 300px;
-    max-height: 70vh;
+    width: 200px;
+    max-height: calc(100dvh - var(--header-height));
     overflow-y: auto;
     overflow-x: hidden;
     background-color: var(--bg-secondary);
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     box-shadow: 4px 4px 20px var(--shadow);
-    z-index: 99;
+    z-index: 101;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
