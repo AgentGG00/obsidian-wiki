@@ -658,16 +658,25 @@ footer a:hover {
    CALLOUTS
    ============================================================ */
 
-.callout-hidden {
-    position: relative;
-    display: block;
+.callout-hidden-block {
     margin: var(--space-md) 0;
-    height: calc(var(--lines, 1) * 2em);
-    width: calc(var(--chars, 20) * 0.55em);
-    overflow: visible;
+    display: flex;
+    flex-direction: column;
 }
 
-.callout-hidden::before {
+.callout-hidden-line {
+    position: relative;
+    display: block;
+    height: 3.5em;
+    width: calc(var(--chars, 20) * 0.55em);
+    margin-top: -2.5em;
+}
+
+.callout-hidden-line:first-child {
+    margin-top: 0;
+}
+
+.callout-hidden-line::before {
     content: '';
     position: absolute;
     top: 0;

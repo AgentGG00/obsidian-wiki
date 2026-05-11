@@ -6,8 +6,6 @@ class BookEngine {
         this.isAnimating = false;
         this.history = [];
 
-        this.clickCount = 0;
-        this.clickTimer = null;
         this.lastKeyTime = 0;
         this.keyPressCount = 0;
         this.keyTimer = null;
@@ -314,24 +312,6 @@ class BookEngine {
         });
 
         tocDropdown.addEventListener('click', (e) => e.stopPropagation());
-
-        document.getElementById('book-stage').addEventListener('click', (e) => {
-            if (e.target.closest('#toc-dropdown')) return;
-            if (e.target.closest('.nav-arrow')) return;
-            if (e.target.closest('#toc-toggle')) return;
-            if (e.target.closest('#back-btn')) return;
-            if (e.target.closest('a')) return;
-
-            this.clickCount++;
-            clearTimeout(this.clickTimer);
-            this.clickTimer = setTimeout(() => {
-                const count = this.clickCount;
-                this.clickCount = 0;
-                const rect = document.getElementById('book-stage').getBoundingClientRect();
-                const direction = e.clientX > rect.left + rect.width / 2 ? 1 : -1;
-                this.navigate(count, direction);
-            }, 300);
-        });
 
         document.addEventListener('keydown', (e) => {
             if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
