@@ -17,6 +17,6 @@ jobs:
           script: |
             cd /var/www/obsidian-wiki
             git fetch --all --tags
-            git stash
+            git checkout -- .
             git reset --hard $(git describe --tags `git rev-list --tags --max-count=1`)
             docker compose up -d --build
